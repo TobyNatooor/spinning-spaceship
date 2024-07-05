@@ -43,14 +43,16 @@ void Loop(void *loopArg_) {
   struct LoopArg *arg = loopArg_;
   struct Player *player = arg->player;
 
+  float frameTime = GetFrameTime();
+
   if (IsKeyDown(KEY_A))
-    player->position.x -= 1;
+    player->position.x -= 100 * frameTime;
   if (IsKeyDown(KEY_D))
-    player->position.x += 1;
+    player->position.x += 100 * frameTime;
   if (IsKeyDown(KEY_W))
-    player->position.y -= 1;
+    player->position.y -= 100 * frameTime;
   if (IsKeyDown(KEY_S))
-    player->position.y += 1;
+    player->position.y += 100 * frameTime;
 
   BeginDrawing();
 
