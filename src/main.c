@@ -40,11 +40,13 @@ struct LoopArg *Setup(void) {
       .wallStart = (Vector2){300, 0},
       .wallEnd = (Vector2){300, 450},
       .next = NULL,
+      .previous = NULL,
   };
   struct WallList wall2 = {
-      .wallStart = (Vector2){500, 0},
+      .wallStart = (Vector2){500, 200},
       .wallEnd = (Vector2){500, 450},
       .next = NULL,
+      .previous = NULL,
   };
   struct WallList *wallList = AddWall(NULL, &wall1);
   wallList = AddWall(wallList, &wall2);
@@ -59,7 +61,7 @@ struct LoopArg *Setup(void) {
 void Loop(void *loopArg_) {
   struct LoopArg *arg = loopArg_;
   struct Player *player = arg->player;
-  struct WallList *wallList = arg->wallList;
+  struct WallList **wallList = &arg->wallList;
 
   float frameTime = GetFrameTime();
 
@@ -72,15 +74,19 @@ void Loop(void *loopArg_) {
   if (IsKeyDown(KEY_S))
     player->position.y += 100 * frameTime;
 
-  MoveWallsDown(wallList, 100 * frameTime);
+  MoveWallsDown(*wallList, 100 * frameTime);
 
-  if (CheckCollisionPlayerWallList(player, wallList))
+  RemoveWallNodeIf(wallList, WallIsOutOfScreen);
+
+  if (CheckCollisionPlayerWallList(player, *wallList))
     printf("hit wall\n");
 
   BeginDrawing();
 
-  DrawWallList(wallList);
+  DrawWallList(*wallList);
   DrawCircle(player->position.x, player->position.y, 50, BLACK);
+  DrawText(TextFormat("wall count: %d", CountWallList(*wallList)), 0, 0, 12,
+           BLACK);
 
   EndDrawing();
 }
@@ -98,7 +104,18 @@ struct WallList *AddWall(struct WallList *head, struct WallList *newWall) {
     head = head->next;
   }
   head->next = wallList;
+  wallList->previous = head;
+
   return start;
+}
+
+int CountWallList(struct WallList *head) {
+  int count = 0;
+  while (head != NULL) {
+    count++;
+    head = head->next;
+  }
+  return count;
 }
 
 void MoveWallsDown(struct WallList *head, int offset) {
@@ -125,4 +142,39 @@ bool CheckCollisionPlayerWallList(struct Player *player,
     head = head->next;
   }
   return false;
+}
+
+bool WallIsOutOfScreen(struct WallList *head) {
+  if (head == NULL)
+    return false;
+  if ((0 > head->wallEnd.x || head->wallEnd.x > SCREEN_WIDTH ||
+       0 > head->wallEnd.y || head->wallEnd.y > SCREEN_HEIGHT) &&
+      (0 > head->wallStart.x || head->wallStart.x > SCREEN_WIDTH ||
+       0 > head->wallStart.y || head->wallStart.y > SCREEN_HEIGHT))
+    return true;
+  return false;
+}
+
+void RemoveWall(struct WallList **head) {
+  struct WallList *next = (*head)->next;
+  struct WallList *previous = (*head)->previous;
+  free(*head);
+  *head = NULL;
+  if (previous != NULL && next != NULL) {
+    previous->next = next;
+    next->previous = previous;
+  } else if (previous != NULL) {
+    previous->next = NULL;
+  } else if (next != NULL) {
+    next->previous = NULL;
+  }
+}
+
+void RemoveWallNodeIf(struct WallList **head,
+                      bool (*condition)(struct WallList *head)) {
+  while (*head != NULL) {
+    if (condition(*head))
+      RemoveWall(head);
+    head = &(*head)->next;
+  }
 }
