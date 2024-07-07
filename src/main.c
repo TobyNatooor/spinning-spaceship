@@ -31,7 +31,6 @@ int main(void) {
 }
 
 struct LoopArg *Setup(void) {
-  // try without allocating
   struct Player *player = malloc(sizeof(struct Player));
   player->position.x = SCREEN_WIDTH / 2;
   player->position.y = SCREEN_HEIGHT / 2;
@@ -48,8 +47,9 @@ struct LoopArg *Setup(void) {
       .next = NULL,
       .previous = NULL,
   };
-  struct WallList *wallList = AddWall(NULL, &wall1);
-  wallList = AddWall(wallList, &wall2);
+  struct WallList *wallList = NULL;
+  AddWall(&wallList, &wall1);
+  AddWall(&wallList, &wall2);
 
   struct LoopArg *loopArg = malloc(sizeof(struct LoopArg));
   loopArg->player = player;
@@ -81,6 +81,24 @@ void Loop(void *loopArg_) {
   if (CheckCollisionPlayerWallList(player, *wallList))
     printf("hit wall\n");
 
+  if (CountWallList(*wallList) <= 0) {
+    printf("test");
+    struct WallList wall1 = {
+        .wallStart = (Vector2){200, 0},
+        .wallEnd = (Vector2){200, 450},
+        .next = NULL,
+        .previous = NULL,
+    };
+    struct WallList wall2 = {
+        .wallStart = (Vector2){600, 0},
+        .wallEnd = (Vector2){600, 450},
+        .next = NULL,
+        .previous = NULL,
+    };
+    AddWall(wallList, &wall1);
+    AddWall(wallList, &wall2);
+  }
+
   BeginDrawing();
 
   DrawWallList(*wallList);
@@ -91,22 +109,23 @@ void Loop(void *loopArg_) {
   EndDrawing();
 }
 
-struct WallList *AddWall(struct WallList *head, struct WallList *newWall) {
-  struct WallList *start = head;
-
+void AddWall(struct WallList **head, struct WallList *newWall) {
   struct WallList *wallList = malloc(sizeof(struct WallList));
   *wallList = *newWall;
 
-  if (head == NULL) {
-    return wallList;
+  if (*head == NULL) {
+    printf("1\n");
+    *head = wallList;
+    return;
   }
-  while (head->next != NULL) {
-    head = head->next;
-  }
-  head->next = wallList;
-  wallList->previous = head;
+  printf("2\n");
 
-  return start;
+  struct WallList *temp = *head;
+  while (temp->next != NULL) {
+    temp = temp->next;
+  }
+  temp->next = wallList;
+  wallList->previous = temp;
 }
 
 int CountWallList(struct WallList *head) {

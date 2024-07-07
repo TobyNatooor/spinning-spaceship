@@ -20,7 +20,7 @@ struct LoopArg {
 struct LoopArg *Setup(void);
 void Loop(void *loopArg);
 
-struct WallList* AddWall(struct WallList *head, struct WallList *newWall);
+void AddWall(struct WallList **head, struct WallList *newWall);
 int CountWallList(struct WallList *head);
 void MoveWallsDown(struct WallList *head, int offset);
 bool WallIsOutOfScreen(struct WallList *head);
