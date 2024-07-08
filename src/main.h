@@ -33,6 +33,7 @@ void MoveSectionsDown(struct Section *sections, int offset);
 bool WallIsOutOfScreen(struct WallList *head);
 void RemoveWall(struct WallList **head);
 struct WallList *GetLastWall(struct WallList *head);
+void FreeWallList(struct WallList *wallList);
 
 // Section-related functions
 void AddStraightSection(struct Section **section);
@@ -44,6 +45,7 @@ void DrawSections(struct Section *sections);
 int CountSections(struct Section *sections);
 bool SectionIsOutOfScreen(struct Section *section);
 void RemoveSectionIfOutOfScreen(struct Section **sections);
+void FreeSections(struct Section *sections);
 
 // Collision-related functions
 bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections);

@@ -24,8 +24,10 @@ int main(void) {
   CloseWindow();
 
   free(loopArg->player);
-  // free linked lists
-  free(loopArg->sections);
+  while (loopArg->sections != NULL) {
+    RemoveSection(&loopArg->sections);
+    loopArg->sections = loopArg->sections->next;
+  }
   free(loopArg);
 
   return 0;
@@ -90,6 +92,23 @@ void Loop(void *loopArg_) {
            WHITE);
 
   EndDrawing();
+}
+
+void FreeSections(struct Section *sections) {
+  while (sections != NULL) {
+    struct Section *temp = sections->next;
+    FreeWallList(sections->wallList);
+    free(sections);
+    sections = temp;
+  }
+}
+
+void FreeWallList(struct WallList *wallList) {
+  while (wallList != NULL) {
+    struct WallList *temp = wallList->next;
+    free(wallList);
+    wallList = temp;
+  }
 }
 
 void AddWall(struct WallList **head, struct WallList *newWall) {
@@ -209,6 +228,7 @@ void RemoveSection(struct Section **section) {
     RemoveWall(wallList);
     wallList = &(*wallList)->next;
   }
+  free(*section);
   *section = NULL;
 }
 
