@@ -21,6 +21,7 @@ struct LoopArg *Setup(void);
 void Loop(void *loopArg);
 
 void AddWall(struct WallList **head, struct WallList *newWall);
+void AddWallV(struct WallList **head, Vector2 startPoint, Vector2 endPoint);
 int CountWallList(struct WallList *head);
 void MoveWallsDown(struct WallList *head, int offset);
 bool WallIsOutOfScreen(struct WallList *head);
@@ -28,3 +29,7 @@ void RemoveWall(struct WallList **head);
 void RemoveWallNodeIf(struct WallList **head, bool (*condition)(struct WallList *head));
 void DrawWallList(struct WallList *head);
 bool CheckCollisionPlayerWallList(struct Player *player, struct WallList *head);
+struct WallList *GetLastWall(struct WallList *head);
+void AddStraightSection(struct WallList **head);
+void AddCurveLeftSection(struct WallList **head);
+void AddCurveRightSection(struct WallList **head);

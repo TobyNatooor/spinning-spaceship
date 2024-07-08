@@ -35,25 +35,9 @@ struct LoopArg *Setup(void) {
   player->position.x = SCREEN_WIDTH / 2;
   player->position.y = SCREEN_HEIGHT / 2;
 
-  struct WallList wall1 = {
-      .wallStart = (Vector2){300, 0},
-      .wallEnd = (Vector2){300, 450},
-      .next = NULL,
-      .previous = NULL,
-  };
-  struct WallList wall2 = {
-      .wallStart = (Vector2){500, 200},
-      .wallEnd = (Vector2){500, 450},
-      .next = NULL,
-      .previous = NULL,
-  };
-  struct WallList *wallList = NULL;
-  AddWall(&wallList, &wall1);
-  AddWall(&wallList, &wall2);
-
   struct LoopArg *loopArg = malloc(sizeof(struct LoopArg));
   loopArg->player = player;
-  loopArg->wallList = wallList;
+  loopArg->wallList = NULL;
 
   return loopArg;
 }
@@ -82,21 +66,17 @@ void Loop(void *loopArg_) {
     printf("hit wall\n");
 
   if (CountWallList(*wallList) <= 0) {
-    printf("test");
-    struct WallList wall1 = {
-        .wallStart = (Vector2){200, 0},
-        .wallEnd = (Vector2){200, 450},
-        .next = NULL,
-        .previous = NULL,
-    };
-    struct WallList wall2 = {
-        .wallStart = (Vector2){600, 0},
-        .wallEnd = (Vector2){600, 450},
-        .next = NULL,
-        .previous = NULL,
-    };
-    AddWall(wallList, &wall1);
-    AddWall(wallList, &wall2);
+    switch (rand() % 3) {
+    case 0:
+      AddStraightSection(wallList);
+      break;
+    case 1:
+      AddCurveLeftSection(wallList);
+      break;
+    case 2:
+      AddCurveRightSection(wallList);
+      break;
+    }
   }
 
   BeginDrawing();
@@ -126,6 +106,16 @@ void AddWall(struct WallList **head, struct WallList *newWall) {
   }
   temp->next = wallList;
   wallList->previous = temp;
+}
+
+void AddWallV(struct WallList **head, Vector2 startPoint, Vector2 endPoint) {
+  struct WallList wall = {
+      .wallStart = startPoint,
+      .wallEnd = endPoint,
+      .next = NULL,
+      .previous = NULL,
+  };
+  AddWall(head, &wall);
 }
 
 int CountWallList(struct WallList *head) {
@@ -196,4 +186,23 @@ void RemoveWallNodeIf(struct WallList **head,
       RemoveWall(head);
     head = &(*head)->next;
   }
+}
+
+void AddStraightSection(struct WallList **head) {
+  AddWallV(head, (Vector2){300, 0}, (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(head, (Vector2){500, 0}, (Vector2){500, SCREEN_HEIGHT});
+}
+
+void AddCurveLeftSection(struct WallList **head) {
+  AddWallV(head, (Vector2){300, 0}, (Vector2){200, SCREEN_HEIGHT / 2});
+  AddWallV(head, (Vector2){200, SCREEN_HEIGHT / 2}, (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(head, (Vector2){500, 0}, (Vector2){400, SCREEN_HEIGHT / 2});
+  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2}, (Vector2){500, SCREEN_HEIGHT});
+}
+
+void AddCurveRightSection(struct WallList **head) {
+  AddWallV(head, (Vector2){300, 0}, (Vector2){400, SCREEN_HEIGHT / 2});
+  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2}, (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(head, (Vector2){500, 0}, (Vector2){600, SCREEN_HEIGHT / 2});
+  AddWallV(head, (Vector2){600, SCREEN_HEIGHT / 2}, (Vector2){500, SCREEN_HEIGHT});
 }
