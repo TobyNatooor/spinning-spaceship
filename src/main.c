@@ -32,8 +32,8 @@ int main(void) {
 
 struct LoopArg *Setup(void) {
   struct Player *player = malloc(sizeof(struct Player));
-  player->position.x = SCREEN_WIDTH / 2;
-  player->position.y = SCREEN_HEIGHT / 2;
+  player->position.x = SCREEN_WIDTH / 2.0;
+  player->position.y = SCREEN_HEIGHT / 2.0;
 
   struct LoopArg *loopArg = malloc(sizeof(struct LoopArg));
   loopArg->player = player;
@@ -58,7 +58,7 @@ void Loop(void *loopArg_) {
   if (IsKeyDown(KEY_S))
     player->position.y += 100 * frameTime;
 
-  MoveWallsDown(*wallList, 100 * frameTime);
+  MoveWallsDown(*wallList, 200 * frameTime);
 
   RemoveWallNodeIf(wallList, WallIsOutOfScreen);
 
@@ -194,15 +194,15 @@ void AddStraightSection(struct WallList **head) {
 }
 
 void AddCurveLeftSection(struct WallList **head) {
-  AddWallV(head, (Vector2){300, 0}, (Vector2){200, SCREEN_HEIGHT / 2});
-  AddWallV(head, (Vector2){200, SCREEN_HEIGHT / 2}, (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(head, (Vector2){500, 0}, (Vector2){400, SCREEN_HEIGHT / 2});
-  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2}, (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(head, (Vector2){300, 0}, (Vector2){200, SCREEN_HEIGHT / 2.0});
+  AddWallV(head, (Vector2){200, SCREEN_HEIGHT / 2.0}, (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(head, (Vector2){500, 0}, (Vector2){400, SCREEN_HEIGHT / 2.0});
+  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2.0}, (Vector2){500, SCREEN_HEIGHT});
 }
 
 void AddCurveRightSection(struct WallList **head) {
-  AddWallV(head, (Vector2){300, 0}, (Vector2){400, SCREEN_HEIGHT / 2});
-  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2}, (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(head, (Vector2){500, 0}, (Vector2){600, SCREEN_HEIGHT / 2});
-  AddWallV(head, (Vector2){600, SCREEN_HEIGHT / 2}, (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(head, (Vector2){300, 0}, (Vector2){400, SCREEN_HEIGHT / 2.0});
+  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2.0}, (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(head, (Vector2){500, 0}, (Vector2){600, SCREEN_HEIGHT / 2.0});
+  AddWallV(head, (Vector2){600, SCREEN_HEIGHT / 2.0}, (Vector2){500, SCREEN_HEIGHT});
 }
