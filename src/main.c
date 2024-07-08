@@ -35,6 +35,7 @@ struct LoopArg *Setup(void) {
   struct Player *player = malloc(sizeof(struct Player));
   player->position.x = SCREEN_WIDTH / 2.0;
   player->position.y = SCREEN_HEIGHT / 2.0;
+  player->radius = 50;
 
   struct LoopArg *loopArg = malloc(sizeof(struct LoopArg));
   loopArg->player = player;
@@ -63,8 +64,8 @@ void Loop(void *loopArg_) {
 
   RemoveSectionIfOutOfScreen(sections);
 
-  // if (CheckCollisionPlayerWallList(player, *wallList))
-  //   printf("hit wall\n");
+  if (IsPlayerCollidingWalls(player, *sections))
+    printf("hit wall\n");
 
   if (CountSections(*sections) <= 0) {
     switch (rand() % 3) {
@@ -84,7 +85,7 @@ void Loop(void *loopArg_) {
 
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
-  DrawCircle(player->position.x, player->position.y, 50, WHITE);
+  DrawCircle(player->position.x, player->position.y, player->radius, WHITE);
   DrawText(TextFormat("section count: %d", CountSections(*sections)), 0, 0, 12,
            WHITE);
 
@@ -150,13 +151,16 @@ void DrawSections(struct Section *sections) {
   }
 }
 
-bool CheckCollisionPlayerWallList(struct Player *player,
-                                  struct WallList *head) {
-  while (head != NULL) {
-    if (CheckCollisionCircleLine(player->position, 50, head->wallStart,
-                                 head->wallEnd))
-      return true;
-    head = head->next;
+bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections) {
+  while (sections != NULL) {
+    struct WallList *wallList = sections->wallList;
+    while (wallList != NULL) {
+      if (CheckCollisionCircleLine(player->position, player->radius,
+                                   wallList->wallStart, wallList->wallEnd))
+        return true;
+      wallList = wallList->next;
+    }
+    sections = sections->next;
   }
   return false;
 }

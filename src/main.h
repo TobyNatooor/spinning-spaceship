@@ -16,6 +16,7 @@ struct Section {
 };
 struct Player {
   Vector2 position;
+  float radius;
 };
 struct LoopArg {
   struct Player *player;
@@ -45,4 +46,4 @@ bool SectionIsOutOfScreen(struct Section *section);
 void RemoveSectionIfOutOfScreen(struct Section **sections);
 
 // Collision-related functions
-bool CheckCollisionPlayerWallList(struct Player *player, struct WallList *head);
+bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections);
