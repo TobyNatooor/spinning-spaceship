@@ -81,10 +81,11 @@ void Loop(void *loopArg_) {
 
   BeginDrawing();
 
+  ClearBackground(DARKGRAY);
   DrawWallList(*wallList);
-  DrawCircle(player->position.x, player->position.y, 50, BLACK);
+  DrawCircle(player->position.x, player->position.y, 50, WHITE);
   DrawText(TextFormat("wall count: %d", CountWallList(*wallList)), 0, 0, 12,
-           BLACK);
+           WHITE);
 
   EndDrawing();
 }
@@ -137,7 +138,7 @@ void MoveWallsDown(struct WallList *head, int offset) {
 
 void DrawWallList(struct WallList *head) {
   while (head != NULL) {
-    DrawLineV(head->wallStart, head->wallEnd, BLACK);
+    DrawLineV(head->wallStart, head->wallEnd, WHITE);
     head = head->next;
   }
 }
