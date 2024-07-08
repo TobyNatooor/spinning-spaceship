@@ -46,8 +46,7 @@ struct LoopArg *Setup(void) {
 void Loop(void *loopArg_) {
   struct LoopArg *arg = loopArg_;
   struct Player *player = arg->player;
-  struct Section *sections = arg->sections;
-  struct WallList **wallList = &arg->sections->wallList;
+  struct Section **sections = &arg->sections;
 
   float frameTime = GetFrameTime();
 
@@ -60,24 +59,23 @@ void Loop(void *loopArg_) {
   if (IsKeyDown(KEY_S))
     player->position.y += 100 * frameTime;
 
-  MoveWallsDown(*wallList, 200 * frameTime);
+  MoveSectionsDown(*sections, 200 * frameTime);
 
-  if (WallIsOutOfScreen(*wallList))
-    RemoveSection(sections);
+  RemoveSectionIfOutOfScreen(sections);
 
-  if (CheckCollisionPlayerWallList(player, *wallList))
-    printf("hit wall\n");
+  // if (CheckCollisionPlayerWallList(player, *wallList))
+  //   printf("hit wall\n");
 
-  if (CountWallList(*wallList) <= 0) {
+  if (CountSections(*sections) <= 0) {
     switch (rand() % 3) {
     case 0:
-      AddStraightSection(wallList);
+      AddStraightSection(sections);
       break;
     case 1:
-      AddCurveLeftSection(wallList);
+      AddCurveLeftSection(sections);
       break;
     case 2:
-      AddCurveRightSection(wallList);
+      AddCurveRightSection(sections);
       break;
     }
   }
@@ -85,9 +83,9 @@ void Loop(void *loopArg_) {
   BeginDrawing();
 
   ClearBackground(DARKGRAY);
-  DrawWallList(*wallList);
+  DrawSections(*sections);
   DrawCircle(player->position.x, player->position.y, 50, WHITE);
-  DrawText(TextFormat("wall count: %d", CountWallList(*wallList)), 0, 0, 12,
+  DrawText(TextFormat("section count: %d", CountSections(*sections)), 0, 0, 12,
            WHITE);
 
   EndDrawing();
@@ -98,11 +96,9 @@ void AddWall(struct WallList **head, struct WallList *newWall) {
   *wallList = *newWall;
 
   if (*head == NULL) {
-    printf("1\n");
     *head = wallList;
     return;
   }
-  printf("2\n");
 
   struct WallList *temp = *head;
   while (temp->next != NULL) {
@@ -122,27 +118,35 @@ void AddWallV(struct WallList **head, Vector2 startPoint, Vector2 endPoint) {
   AddWall(head, &wall);
 }
 
-int CountWallList(struct WallList *head) {
+int CountSections(struct Section *sections) {
   int count = 0;
-  while (head != NULL) {
+  while (sections != NULL) {
     count++;
-    head = head->next;
+    sections = sections->next;
   }
   return count;
 }
 
-void MoveWallsDown(struct WallList *head, int offset) {
-  while (head != NULL) {
-    head->wallStart.y += offset;
-    head->wallEnd.y += offset;
-    head = head->next;
+void MoveSectionsDown(struct Section *sections, int offset) {
+  while (sections != NULL) {
+    struct WallList *wallList = sections->wallList;
+    while (wallList != NULL) {
+      wallList->wallStart.y += offset;
+      wallList->wallEnd.y += offset;
+      wallList = wallList->next;
+    }
+    sections = sections->next;
   }
 }
 
-void DrawWallList(struct WallList *head) {
-  while (head != NULL) {
-    DrawLineV(head->wallStart, head->wallEnd, WHITE);
-    head = head->next;
+void DrawSections(struct Section *sections) {
+  while (sections != NULL) {
+    struct WallList *wallList = sections->wallList;
+    while (wallList != NULL) {
+      DrawLineV(wallList->wallStart, wallList->wallEnd, WHITE);
+      wallList = wallList->next;
+    }
+    sections = sections->next;
   }
 }
 
@@ -168,6 +172,18 @@ bool WallIsOutOfScreen(struct WallList *head) {
   return false;
 }
 
+bool SectionIsOutOfScreen(struct Section *section) {
+  if (section == NULL)
+    return false;
+  struct WallList *wallList = section->wallList;
+  while (wallList != NULL) {
+    if (!WallIsOutOfScreen(wallList))
+      return false;
+    wallList = wallList->next;
+  }
+  return true;
+}
+
 void RemoveWall(struct WallList **head) {
   struct WallList *next = (*head)->next;
   struct WallList *previous = (*head)->previous;
@@ -183,30 +199,84 @@ void RemoveWall(struct WallList **head) {
   }
 }
 
-
-void RemoveSection(struct Section *section) {
-  struct WallList **wallList = &section->wallList;
+void RemoveSection(struct Section **section) {
+  struct WallList **wallList = &(*section)->wallList;
   while (*wallList != NULL) {
     RemoveWall(wallList);
     wallList = &(*wallList)->next;
   }
+  *section = NULL;
 }
 
-void AddStraightSection(struct WallList **head) {
-  AddWallV(head, (Vector2){300, 0}, (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(head, (Vector2){500, 0}, (Vector2){500, SCREEN_HEIGHT});
+void AddSection(struct Section **sections, struct Section *newSection) {
+  struct Section *section = malloc(sizeof(struct Section));
+  *section = *newSection;
+
+  if (*sections == NULL) {
+    *sections = section;
+    return;
+  }
+
+  struct Section *temp = *sections;
+  while (temp->next != NULL) {
+    temp = temp->next;
+  }
+  temp->next = section;
+  section->previous = temp;
 }
 
-void AddCurveLeftSection(struct WallList **head) {
-  AddWallV(head, (Vector2){300, 0}, (Vector2){200, SCREEN_HEIGHT / 2.0});
-  AddWallV(head, (Vector2){200, SCREEN_HEIGHT / 2.0}, (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(head, (Vector2){500, 0}, (Vector2){400, SCREEN_HEIGHT / 2.0});
-  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2.0}, (Vector2){500, SCREEN_HEIGHT});
+void AddStraightSection(struct Section **section) {
+  struct Section newSection = {
+      .next = NULL,
+      .previous = NULL,
+      .wallList = NULL,
+  };
+  AddWallV(&newSection.wallList, (Vector2){300, 0},
+           (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(&newSection.wallList, (Vector2){500, 0},
+           (Vector2){500, SCREEN_HEIGHT});
+  AddSection(section, &newSection);
 }
 
-void AddCurveRightSection(struct WallList **head) {
-  AddWallV(head, (Vector2){300, 0}, (Vector2){400, SCREEN_HEIGHT / 2.0});
-  AddWallV(head, (Vector2){400, SCREEN_HEIGHT / 2.0}, (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(head, (Vector2){500, 0}, (Vector2){600, SCREEN_HEIGHT / 2.0});
-  AddWallV(head, (Vector2){600, SCREEN_HEIGHT / 2.0}, (Vector2){500, SCREEN_HEIGHT});
+void AddCurveLeftSection(struct Section **section) {
+  struct Section newSection = {
+      .next = NULL,
+      .previous = NULL,
+      .wallList = NULL,
+  };
+  AddWallV(&newSection.wallList, (Vector2){300, 0},
+           (Vector2){200, SCREEN_HEIGHT / 2.0});
+  AddWallV(&newSection.wallList, (Vector2){200, SCREEN_HEIGHT / 2.0},
+           (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(&newSection.wallList, (Vector2){500, 0},
+           (Vector2){400, SCREEN_HEIGHT / 2.0});
+  AddWallV(&newSection.wallList, (Vector2){400, SCREEN_HEIGHT / 2.0},
+           (Vector2){500, SCREEN_HEIGHT});
+  AddSection(section, &newSection);
+}
+
+void AddCurveRightSection(struct Section **section) {
+  struct Section newSection = {
+      .next = NULL,
+      .previous = NULL,
+      .wallList = NULL,
+  };
+  AddWallV(&newSection.wallList, (Vector2){300, 0},
+           (Vector2){400, SCREEN_HEIGHT / 2.0});
+  AddWallV(&newSection.wallList, (Vector2){400, SCREEN_HEIGHT / 2.0},
+           (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(&newSection.wallList, (Vector2){500, 0},
+           (Vector2){600, SCREEN_HEIGHT / 2.0});
+  AddWallV(&newSection.wallList, (Vector2){600, SCREEN_HEIGHT / 2.0},
+           (Vector2){500, SCREEN_HEIGHT});
+  AddSection(section, &newSection);
+}
+
+void RemoveSectionIfOutOfScreen(struct Section **sections) {
+  while (*sections != NULL) {
+    if (SectionIsOutOfScreen(*sections))
+      RemoveSection(sections);
+    if (*sections != NULL)
+      sections = &(*sections)->next;
+  }
 }

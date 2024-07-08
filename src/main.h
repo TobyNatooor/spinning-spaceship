@@ -10,6 +10,8 @@ struct WallList {
   Vector2 wallEnd;
 };
 struct Section {
+  struct Section *next;
+  struct Section *previous;
   struct WallList *wallList;
 };
 struct Player {
@@ -23,16 +25,24 @@ struct LoopArg {
 struct LoopArg *Setup(void);
 void Loop(void *loopArg);
 
+// Wall-related functions
 void AddWall(struct WallList **head, struct WallList *newWall);
 void AddWallV(struct WallList **head, Vector2 startPoint, Vector2 endPoint);
-int CountWallList(struct WallList *head);
-void MoveWallsDown(struct WallList *head, int offset);
+void MoveSectionsDown(struct Section *sections, int offset);
 bool WallIsOutOfScreen(struct WallList *head);
 void RemoveWall(struct WallList **head);
-void RemoveSection(struct Section *sections);
-void DrawWallList(struct WallList *head);
-bool CheckCollisionPlayerWallList(struct Player *player, struct WallList *head);
 struct WallList *GetLastWall(struct WallList *head);
-void AddStraightSection(struct WallList **head);
-void AddCurveLeftSection(struct WallList **head);
-void AddCurveRightSection(struct WallList **head);
+
+// Section-related functions
+void AddStraightSection(struct Section **section);
+void AddCurveLeftSection(struct Section **section);
+void AddCurveRightSection(struct Section **section);
+void AddSection(struct Section **sections, struct Section *newSection);
+void RemoveSection(struct Section **sections);
+void DrawSections(struct Section *sections);
+int CountSections(struct Section *sections);
+bool SectionIsOutOfScreen(struct Section *section);
+void RemoveSectionIfOutOfScreen(struct Section **sections);
+
+// Collision-related functions
+bool CheckCollisionPlayerWallList(struct Player *player, struct WallList *head);
