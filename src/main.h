@@ -9,12 +9,15 @@ struct WallList {
   Vector2 wallStart;
   Vector2 wallEnd;
 };
+struct Section {
+  struct WallList *wallList;
+};
 struct Player {
   Vector2 position;
 };
 struct LoopArg {
   struct Player *player;
-  struct WallList *wallList;
+  struct Section *sections;
 };
 
 struct LoopArg *Setup(void);
@@ -26,7 +29,7 @@ int CountWallList(struct WallList *head);
 void MoveWallsDown(struct WallList *head, int offset);
 bool WallIsOutOfScreen(struct WallList *head);
 void RemoveWall(struct WallList **head);
-void RemoveWallNodeIf(struct WallList **head, bool (*condition)(struct WallList *head));
+void RemoveSection(struct Section *sections);
 void DrawWallList(struct WallList *head);
 bool CheckCollisionPlayerWallList(struct Player *player, struct WallList *head);
 struct WallList *GetLastWall(struct WallList *head);

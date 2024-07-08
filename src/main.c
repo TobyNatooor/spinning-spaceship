@@ -24,7 +24,8 @@ int main(void) {
   CloseWindow();
 
   free(loopArg->player);
-  free(loopArg->wallList);
+  // free linked lists
+  free(loopArg->sections);
   free(loopArg);
 
   return 0;
@@ -37,7 +38,7 @@ struct LoopArg *Setup(void) {
 
   struct LoopArg *loopArg = malloc(sizeof(struct LoopArg));
   loopArg->player = player;
-  loopArg->wallList = NULL;
+  loopArg->sections = NULL;
 
   return loopArg;
 }
@@ -45,7 +46,8 @@ struct LoopArg *Setup(void) {
 void Loop(void *loopArg_) {
   struct LoopArg *arg = loopArg_;
   struct Player *player = arg->player;
-  struct WallList **wallList = &arg->wallList;
+  struct Section *sections = arg->sections;
+  struct WallList **wallList = &arg->sections->wallList;
 
   float frameTime = GetFrameTime();
 
@@ -60,7 +62,8 @@ void Loop(void *loopArg_) {
 
   MoveWallsDown(*wallList, 200 * frameTime);
 
-  RemoveWallNodeIf(wallList, WallIsOutOfScreen);
+  if (WallIsOutOfScreen(*wallList))
+    RemoveSection(sections);
 
   if (CheckCollisionPlayerWallList(player, *wallList))
     printf("hit wall\n");
@@ -180,12 +183,12 @@ void RemoveWall(struct WallList **head) {
   }
 }
 
-void RemoveWallNodeIf(struct WallList **head,
-                      bool (*condition)(struct WallList *head)) {
-  while (*head != NULL) {
-    if (condition(*head))
-      RemoveWall(head);
-    head = &(*head)->next;
+
+void RemoveSection(struct Section *section) {
+  struct WallList **wallList = &section->wallList;
+  while (*wallList != NULL) {
+    RemoveWall(wallList);
+    wallList = &(*wallList)->next;
   }
 }
 
