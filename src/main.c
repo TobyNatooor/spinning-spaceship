@@ -2,6 +2,7 @@
 #include "include/raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
@@ -42,6 +43,7 @@ struct LoopArg *Setup(void) {
   struct LoopArg *loopArg = malloc(sizeof(struct LoopArg));
   loopArg->player = player;
   loopArg->sections = NULL;
+  AddStraightSection(&loopArg->sections, (Vector2){0, 0});
 
   return loopArg;
 }
@@ -69,16 +71,16 @@ void Loop(void *loopArg_) {
   if (IsPlayerCollidingWalls(player, *sections))
     printf("hit wall\n");
 
-  if (CountSections(*sections) <= 0) {
+  if (CountSections(*sections) <= 1) {
     switch (rand() % 3) {
     case 0:
-      AddStraightSection(sections);
+      AddStraightSection(sections, (Vector2){0, -SCREEN_HEIGHT});
       break;
     case 1:
-      AddCurveLeftSection(sections);
+      AddCurveLeftSection(sections, (Vector2){0, -SCREEN_HEIGHT});
       break;
     case 2:
-      AddCurveRightSection(sections);
+      AddCurveRightSection(sections, (Vector2){0, -SCREEN_HEIGHT});
       break;
     }
   }
@@ -92,23 +94,6 @@ void Loop(void *loopArg_) {
            WHITE);
 
   EndDrawing();
-}
-
-void FreeSections(struct Section *sections) {
-  while (sections != NULL) {
-    struct Section *temp = sections->next;
-    FreeWallList(sections->wallList);
-    free(sections);
-    sections = temp;
-  }
-}
-
-void FreeWallList(struct WallList *wallList) {
-  while (wallList != NULL) {
-    struct WallList *temp = wallList->next;
-    free(wallList);
-    wallList = temp;
-  }
 }
 
 void AddWall(struct WallList **head, struct WallList *newWall) {
@@ -210,8 +195,8 @@ bool SectionIsOutOfScreen(struct Section *section) {
 void RemoveWall(struct WallList **head) {
   struct WallList *next = (*head)->next;
   struct WallList *previous = (*head)->previous;
-  free(*head);
-  *head = NULL;
+  // free(*head);
+  //*head = NULL;
   if (previous != NULL && next != NULL) {
     previous->next = next;
     next->previous = previous;
@@ -225,11 +210,23 @@ void RemoveWall(struct WallList **head) {
 void RemoveSection(struct Section **section) {
   struct WallList **wallList = &(*section)->wallList;
   while (*wallList != NULL) {
-    RemoveWall(wallList);
+    struct WallList **temp = wallList;
     wallList = &(*wallList)->next;
+    RemoveWall(temp);
   }
+
+  struct Section *next = (*section)->next;
+  struct Section *previous = (*section)->previous;
   free(*section);
   *section = NULL;
+  if (previous != NULL && next != NULL) {
+    previous->next = next;
+    next->previous = previous;
+  } else if (previous != NULL) {
+    previous->next = NULL;
+  } else if (next != NULL) {
+    next->previous = NULL;
+  }
 }
 
 void AddSection(struct Section **sections, struct Section *newSection) {
@@ -249,58 +246,62 @@ void AddSection(struct Section **sections, struct Section *newSection) {
   section->previous = temp;
 }
 
-void AddStraightSection(struct Section **section) {
+void AddStraightSection(struct Section **section, Vector2 offset) {
   struct Section newSection = {
       .next = NULL,
       .previous = NULL,
       .wallList = NULL,
   };
-  AddWallV(&newSection.wallList, (Vector2){300, 0},
-           (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(&newSection.wallList, (Vector2){500, 0},
-           (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(&newSection.wallList, (Vector2){300 + offset.x, 0 + offset.y},
+           (Vector2){300 + offset.x, SCREEN_HEIGHT + offset.y});
+  AddWallV(&newSection.wallList, (Vector2){500 + offset.x, 0 + offset.y},
+           (Vector2){500 + offset.x, SCREEN_HEIGHT + offset.y});
   AddSection(section, &newSection);
 }
 
-void AddCurveLeftSection(struct Section **section) {
+void AddCurveLeftSection(struct Section **section, Vector2 offset) {
   struct Section newSection = {
       .next = NULL,
       .previous = NULL,
       .wallList = NULL,
   };
-  AddWallV(&newSection.wallList, (Vector2){300, 0},
-           (Vector2){200, SCREEN_HEIGHT / 2.0});
-  AddWallV(&newSection.wallList, (Vector2){200, SCREEN_HEIGHT / 2.0},
-           (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(&newSection.wallList, (Vector2){500, 0},
-           (Vector2){400, SCREEN_HEIGHT / 2.0});
-  AddWallV(&newSection.wallList, (Vector2){400, SCREEN_HEIGHT / 2.0},
-           (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(&newSection.wallList, (Vector2){300 + offset.x, 0 + offset.y},
+           (Vector2){200 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
+  AddWallV(&newSection.wallList,
+           (Vector2){200 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
+           (Vector2){300 + offset.x, SCREEN_HEIGHT + offset.y});
+  AddWallV(&newSection.wallList, (Vector2){500 + offset.x, 0 + offset.y},
+           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
+  AddWallV(&newSection.wallList,
+           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
+           (Vector2){500 + offset.x, SCREEN_HEIGHT + offset.y});
   AddSection(section, &newSection);
 }
 
-void AddCurveRightSection(struct Section **section) {
+void AddCurveRightSection(struct Section **section, Vector2 offset) {
   struct Section newSection = {
       .next = NULL,
       .previous = NULL,
       .wallList = NULL,
   };
-  AddWallV(&newSection.wallList, (Vector2){300, 0},
-           (Vector2){400, SCREEN_HEIGHT / 2.0});
-  AddWallV(&newSection.wallList, (Vector2){400, SCREEN_HEIGHT / 2.0},
-           (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(&newSection.wallList, (Vector2){500, 0},
-           (Vector2){600, SCREEN_HEIGHT / 2.0});
-  AddWallV(&newSection.wallList, (Vector2){600, SCREEN_HEIGHT / 2.0},
-           (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(&newSection.wallList, (Vector2){300 + offset.x, 0 + offset.y},
+           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
+  AddWallV(&newSection.wallList,
+           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
+           (Vector2){300 + offset.x, SCREEN_HEIGHT + offset.y});
+  AddWallV(&newSection.wallList, (Vector2){500 + offset.x, 0 + offset.y},
+           (Vector2){600 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
+  AddWallV(&newSection.wallList,
+           (Vector2){600 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
+           (Vector2){500 + offset.x, SCREEN_HEIGHT + offset.y});
   AddSection(section, &newSection);
 }
 
 void RemoveSectionIfOutOfScreen(struct Section **sections) {
   while (*sections != NULL) {
-    if (SectionIsOutOfScreen(*sections))
-      RemoveSection(sections);
-    if (*sections != NULL)
-      sections = &(*sections)->next;
+    struct Section **temp = sections;
+    sections = &(*sections)->next;
+    if (SectionIsOutOfScreen(*temp))
+      RemoveSection(temp);
   }
 }

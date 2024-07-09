@@ -36,9 +36,9 @@ struct WallList *GetLastWall(struct WallList *head);
 void FreeWallList(struct WallList *wallList);
 
 // Section-related functions
-void AddStraightSection(struct Section **section);
-void AddCurveLeftSection(struct Section **section);
-void AddCurveRightSection(struct Section **section);
+void AddStraightSection(struct Section **section, Vector2 offset);
+void AddCurveLeftSection(struct Section **section, Vector2 offset);
+void AddCurveRightSection(struct Section **section, Vector2 offset);
 void AddSection(struct Section **sections, struct Section *newSection);
 void RemoveSection(struct Section **sections);
 void DrawSections(struct Section *sections);
