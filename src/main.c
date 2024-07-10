@@ -1,14 +1,14 @@
-#include "main.h"
-#include "include/raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "include/raylib.h"
+#include "main.h"
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
 #endif
 
 int main(void) {
-  struct LoopArg *loopArg = Setup();
+  LoopArg *loopArg = Setup();
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Spinning Spaceship");
 
 #if defined(PLATFORM_WEB)
@@ -31,13 +31,13 @@ int main(void) {
   return 0;
 }
 
-struct LoopArg *Setup(void) {
-  struct Player *player = malloc(sizeof(struct Player));
+LoopArg *Setup(void) {
+  Player *player = malloc(sizeof(Player));
   player->position.x = SCREEN_WIDTH / 2.0;
   player->position.y = SCREEN_HEIGHT / 2.0;
   player->radius = 50;
 
-  struct LoopArg *loopArg = malloc(sizeof(struct LoopArg));
+  LoopArg *loopArg = malloc(sizeof(LoopArg));
   loopArg->player = player;
   loopArg->sections = NULL;
   AddStraightSection(&loopArg->sections, (Vector2){0, 0});
@@ -46,9 +46,9 @@ struct LoopArg *Setup(void) {
 }
 
 void Loop(void *loopArg_) {
-  struct LoopArg *arg = loopArg_;
-  struct Player *player = arg->player;
-  struct Section **sections = &arg->sections;
+  LoopArg *arg = loopArg_;
+  Player *player = arg->player;
+  SectionNode **sections = &arg->sections;
 
   float frameTime = GetFrameTime();
 
@@ -91,9 +91,9 @@ void Loop(void *loopArg_) {
   EndDrawing();
 }
 
-bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections) {
+bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
   while (sections != NULL) {
-    struct WallList *wallList = sections->wallList;
+    WallNode *wallList = sections->walls;
     while (wallList != NULL) {
       if (CheckCollisionCircleLine(player->position, player->radius,
                                    wallList->wallStart, wallList->wallEnd))
@@ -105,16 +105,16 @@ bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections) {
   return false;
 }
 
-void DrawWalls(struct WallList *wallList) {
+void DrawWalls(WallNode *wallList) {
   while (wallList != NULL) {
     DrawLineV(wallList->wallStart, wallList->wallEnd, WHITE);
     wallList = wallList->next;
   }
 }
 
-void DrawSections(struct Section *sections) {
+void DrawSections(SectionNode *sections) {
   while (sections != NULL) {
-    DrawWalls(sections->wallList);
+    DrawWalls(sections->walls);
     sections = sections->next;
   }
 }

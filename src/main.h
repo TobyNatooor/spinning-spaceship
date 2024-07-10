@@ -1,21 +1,21 @@
 #include "section.h"
 
-struct Player {
+typedef struct Player {
   Vector2 position;
   float radius;
-};
+} Player;
 
-struct LoopArg {
-  struct Player *player;
-  struct Section *sections;
-};
+typedef struct LoopArg {
+  Player *player;
+  SectionNode *sections;
+} LoopArg;
 
-struct LoopArg *Setup(void);
+LoopArg *Setup(void);
 void Loop(void *loopArg);
 
 // Draw functions
-void DrawWalls(struct WallList *wallList);
-void DrawSections(struct Section *sections);
+void DrawWalls(WallNode *wallList);
+void DrawSections(SectionNode *sections);
 
 // Collision functions
-bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections);
+bool IsPlayerCollidingWalls(Player *player, SectionNode *sections);

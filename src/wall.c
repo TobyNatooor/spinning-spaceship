@@ -3,53 +3,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void AddWall(struct WallList **wallList, struct WallList *newWallList) {
-  if (*wallList == NULL) {
-    *wallList = newWallList;
+void AddWall(WallNode **walls, WallNode *newWall) {
+  if (*walls == NULL) {
+    *walls = newWall;
     return;
   }
 
-  struct WallList *last = *wallList;
+  WallNode *last = *walls;
   while (last->next != NULL)
     last = last->next;
-  last->next = newWallList;
+  last->next = newWall;
 
-  newWallList->previous = last;
+  newWall->prev = last;
 }
 
-void AddWallV(struct WallList **wallList, Vector2 startPoint, Vector2 endPoint) {
-  struct WallList *newWallList = malloc(sizeof(struct WallList));
-  newWallList->wallStart = startPoint;
-  newWallList->wallEnd = endPoint;
-  newWallList->previous = NULL;
-  newWallList->next = NULL;
-  AddWall(wallList, newWallList);
+void AddWallV(WallNode **walls, Vector2 startPoint, Vector2 endPoint) {
+  WallNode *newWallNode = malloc(sizeof(WallNode));
+  newWallNode->wallStart = startPoint;
+  newWallNode->wallEnd = endPoint;
+  newWallNode->prev = NULL;
+  newWallNode->next = NULL;
+  AddWall(walls, newWallNode);
 }
 
-void RemoveWall(struct WallList **wallList) {
-  struct WallList *previous = (*wallList)->previous;
-  struct WallList *next = (*wallList)->next;
-  free(*wallList);
-  *wallList = NULL;
+void RemoveWall(WallNode **walls) {
+  WallNode *prev = (*walls)->prev;
+  WallNode *next = (*walls)->next;
+  free(*walls);
+  *walls = NULL;
 
   if (next != NULL)
-    next->previous = previous;
-  if (previous != NULL)
-    previous->next = next;
+    next->prev = prev;
+  if (prev != NULL)
+    prev->next = next;
   else
-    *wallList = next;
+    *walls = next;
 }
 
-int CountWalls(struct WallList *wallList) {
+int CountWalls(WallNode *walls) {
   int count = 0;
-  while (wallList != NULL) {
+  while (walls != NULL) {
     count++;
-    wallList = wallList->next;
+    walls = walls->next;
   }
   return count;
 }
 
-bool WallIsOutOfScreen(struct WallList *head) {
+bool WallIsOutOfScreen(WallNode *head) {
   assert(head != NULL);
 
   if ((0 > head->wallEnd.x || head->wallEnd.x > SCREEN_WIDTH ||
