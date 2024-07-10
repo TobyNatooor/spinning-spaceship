@@ -2,51 +2,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Section *AddSection(struct Section **sections,
-                           struct WallList *wallList) {
-  struct Section *section = malloc(sizeof(struct Section));
-  section->wallList = wallList;
-  section->previous = NULL;
-  section->next = NULL;
-
+void AddSection(struct Section **sections, struct Section *newSection) {
   if (*sections == NULL) {
-    *sections = section;
-    return section;
+    *sections = newSection;
+    return;
   }
 
   struct Section *last = *sections;
   while (last->next != NULL)
     last = last->next;
-  last->next = section;
-  section->previous = last;
-  return section;
+
+  last->next = newSection;
+  newSection->previous = last;
 }
 
 void RemoveSection(struct Section **section) {
   struct WallList *wallList = (*section)->wallList;
-  while (wallList != NULL) {
-    struct WallList *temp = wallList->next;
-    free(wallList);
-    wallList = temp;
-  }
+  while (wallList != NULL)
+    RemoveWall(&wallList);
 
-  struct Section *next = (*section)->next;
   struct Section *previous = (*section)->previous;
+  struct Section *next = (*section)->next;
   free(*section);
   *section = NULL;
-  // previous->next = next;
-  // next->previous = previous;
-  if (previous != NULL && next != NULL) {
-    previous->next = next;
+  if (next != NULL)
     next->previous = previous;
-    *section = previous;
-  } else if (previous != NULL) {
-    previous->next = NULL;
-    *section = previous;
-  } else if (next != NULL) {
-    next->previous = NULL;
+  if (previous != NULL)
+    previous->next = next;
+  else
     *section = next;
-  }
 }
 
 int CountSections(struct Section *sections) {
@@ -123,7 +107,11 @@ bool SectionIsOutOfScreen(struct Section *section) {
 }
 
 void AddStraightSection(struct Section **sections, Vector2 offset) {
-  struct Section *section = AddSection(sections, NULL);
+  struct Section *section = malloc(sizeof(struct Section));
+  section->previous = NULL;
+  section->next = NULL;
+  section->wallList = NULL;
+  AddSection(sections, section);
   AddWallV(section, (Vector2){300 + offset.x, 0 + offset.y},
            (Vector2){300 + offset.x, SCREEN_HEIGHT + offset.y});
   AddWallV(section, (Vector2){500 + offset.x, 0 + offset.y},
@@ -131,7 +119,11 @@ void AddStraightSection(struct Section **sections, Vector2 offset) {
 }
 
 void AddCurveLeftSection(struct Section **sections, Vector2 offset) {
-  struct Section *section = AddSection(sections, NULL);
+  struct Section *section = malloc(sizeof(struct Section));
+  section->previous = NULL;
+  section->next = NULL;
+  section->wallList = NULL;
+  AddSection(sections, section);
   AddWallV(section, (Vector2){300 + offset.x, 0 + offset.y},
            (Vector2){200 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
   AddWallV(section, (Vector2){200 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
@@ -143,7 +135,11 @@ void AddCurveLeftSection(struct Section **sections, Vector2 offset) {
 }
 
 void AddCurveRightSection(struct Section **sections, Vector2 offset) {
-  struct Section *section = AddSection(sections, NULL);
+  struct Section *section = malloc(sizeof(struct Section));
+  section->previous = NULL;
+  section->next = NULL;
+  section->wallList = NULL;
+  AddSection(sections, section);
   AddWallV(section, (Vector2){300 + offset.x, 0 + offset.y},
            (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
   AddWallV(section, (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},

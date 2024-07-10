@@ -6,7 +6,7 @@ struct Section {
   struct WallList *wallList;
 };
 
-struct Section *AddSection(struct Section **sections, struct WallList *wallList);
+void AddSection(struct Section **sections, struct Section *newSection);
 void RemoveSection(struct Section **sections);
 int CountSections(struct Section *sections);
 void MoveSectionsDown(struct Section *sections, int offset);
