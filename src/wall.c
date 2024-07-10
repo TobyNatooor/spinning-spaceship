@@ -1,4 +1,5 @@
 #include "wall.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,6 +15,15 @@ void AddWall(struct WallList **wallList, struct WallList *newWallList) {
   last->next = newWallList;
 
   newWallList->previous = last;
+}
+
+void AddWallV(struct WallList **wallList, Vector2 startPoint, Vector2 endPoint) {
+  struct WallList *newWallList = malloc(sizeof(struct WallList));
+  newWallList->wallStart = startPoint;
+  newWallList->wallEnd = endPoint;
+  newWallList->previous = NULL;
+  newWallList->next = NULL;
+  AddWall(wallList, newWallList);
 }
 
 void RemoveWall(struct WallList **wallList) {
@@ -40,10 +50,7 @@ int CountWalls(struct WallList *wallList) {
 }
 
 bool WallIsOutOfScreen(struct WallList *head) {
-  if (head == NULL) {
-    return false;
-  }
-  printf("x: %.f, y: %.f\n", head->wallStart.x, head->wallStart.y);
+  assert(head != NULL);
 
   if ((0 > head->wallEnd.x || head->wallEnd.x > SCREEN_WIDTH ||
        0 > head->wallEnd.y || head->wallEnd.y > SCREEN_HEIGHT) &&
