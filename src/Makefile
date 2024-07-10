@@ -1,6 +1,6 @@
 
 PLATFORM	?= PLATFORM_WEB
-FILES		 = main.c
+FILES		 = main.c wall.c section.c
 CC		 = gcc
 CFLAGS		:= -Wall -Wextra -g
 INCLUDE_PATHS	:= -Iinclude
