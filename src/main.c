@@ -24,10 +24,8 @@ int main(void) {
   CloseWindow();
 
   free(loopArg->player);
-  while (loopArg->sections != NULL) {
+  while (loopArg->sections != NULL)
     RemoveSection(&loopArg->sections);
-    loopArg->sections = loopArg->sections->next;
-  }
   free(loopArg);
 
   return 0;
@@ -55,15 +53,15 @@ void Loop(void *loopArg_) {
   float frameTime = GetFrameTime();
 
   if (IsKeyDown(KEY_A))
-    player->position.x -= 100 * frameTime;
+    player->position.x -= 200 * frameTime;
   if (IsKeyDown(KEY_D))
-    player->position.x += 100 * frameTime;
+    player->position.x += 200 * frameTime;
   if (IsKeyDown(KEY_W))
-    player->position.y -= 100 * frameTime;
+    player->position.y -= 200 * frameTime;
   if (IsKeyDown(KEY_S))
-    player->position.y += 100 * frameTime;
+    player->position.y += 200 * frameTime;
 
-  MoveSectionsDown(*sections, 200 * frameTime);
+  MoveSectionsDown(*sections, 500 * frameTime);
 
   RemoveSectionIfOutOfScreen(sections);
 
@@ -89,10 +87,6 @@ void Loop(void *loopArg_) {
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
   DrawCircle(player->position.x, player->position.y, player->radius, WHITE);
-  DrawText(TextFormat("section count: %d\nwall count: %d",
-                      CountSections(*sections),
-                      CountWalls((*sections)->wallList)),
-           0, 0, 12, WHITE);
 
   EndDrawing();
 }
@@ -111,13 +105,16 @@ bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections) {
   return false;
 }
 
+void DrawWalls(struct WallList *wallList) {
+  while (wallList != NULL) {
+    DrawLineV(wallList->wallStart, wallList->wallEnd, WHITE);
+    wallList = wallList->next;
+  }
+}
+
 void DrawSections(struct Section *sections) {
   while (sections != NULL) {
-    struct WallList *wallList = sections->wallList;
-    while (wallList != NULL) {
-      DrawLineV(wallList->wallStart, wallList->wallEnd, WHITE);
-      wallList = wallList->next;
-    }
+    DrawWalls(sections->wallList);
     sections = sections->next;
   }
 }

@@ -14,6 +14,7 @@ struct LoopArg *Setup(void);
 void Loop(void *loopArg);
 
 // Draw functions
+void DrawWalls(struct WallList *wallList);
 void DrawSections(struct Section *sections);
 
 // Collision functions
