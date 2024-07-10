@@ -2,19 +2,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void RemoveWall(struct WallList **head) {
-  struct WallList *next = (*head)->next;
-  struct WallList *previous = (*head)->previous;
-  free(*head);
-  *head = NULL;
-  if (previous != NULL && next != NULL) {
-    previous->next = next;
-    next->previous = previous;
-  } else if (previous != NULL) {
-    previous->next = NULL;
-  } else if (next != NULL) {
-    next->previous = NULL;
+void AddWall(struct WallList **wallList, struct WallList *newWallList) {
+  if (*wallList == NULL) {
+    *wallList = newWallList;
+    return;
   }
+
+  struct WallList *last = *wallList;
+  while (last->next != NULL)
+    last = last->next;
+  last->next = newWallList;
+
+  newWallList->previous = last;
+}
+
+void RemoveWall(struct WallList **wallList) {
+  struct WallList *previous = (*wallList)->previous;
+  struct WallList *next = (*wallList)->next;
+  free(*wallList);
+  *wallList = NULL;
+
+  if (next != NULL)
+    next->previous = previous;
+  if (previous != NULL)
+    previous->next = next;
+  else
+    *wallList = next;
 }
 
 int CountWalls(struct WallList *wallList) {
@@ -28,7 +41,6 @@ int CountWalls(struct WallList *wallList) {
 
 bool WallIsOutOfScreen(struct WallList *head) {
   if (head == NULL) {
-    printf("got NULL as an argument in %s\n", __func__);
     return false;
   }
   printf("x: %.f, y: %.f\n", head->wallStart.x, head->wallStart.y);

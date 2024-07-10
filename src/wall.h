@@ -8,7 +8,7 @@ struct WallList {
   Vector2 wallEnd;
 };
 
-// void AddWall(struct WallList **head, struct WallList *newWall);
-void RemoveWall(struct WallList **head);
+void AddWall(struct WallList **wallList, struct WallList *newWallList);
+void RemoveWall(struct WallList **wallList);
 int CountWalls(struct WallList *wallList);
 bool WallIsOutOfScreen(struct WallList *head);

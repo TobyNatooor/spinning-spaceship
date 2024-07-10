@@ -58,17 +58,6 @@ int CountSections(struct Section *sections) {
   return count;
 }
 
-void DrawSections(struct Section *sections) {
-  while (sections != NULL) {
-    struct WallList *wallList = sections->wallList;
-    while (wallList != NULL) {
-      DrawLineV(wallList->wallStart, wallList->wallEnd, WHITE);
-      wallList = wallList->next;
-    }
-    sections = sections->next;
-  }
-}
-
 void RemoveSectionIfOutOfScreen(struct Section **sections) {
   while (*sections != NULL) {
     struct Section **temp = &(*sections)->next;

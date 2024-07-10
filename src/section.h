@@ -8,7 +8,6 @@ struct Section {
 
 struct Section *AddSection(struct Section **sections, struct WallList *wallList);
 void RemoveSection(struct Section **sections);
-void DrawSections(struct Section *sections);
 int CountSections(struct Section *sections);
 void MoveSectionsDown(struct Section *sections, int offset);
 bool SectionIsOutOfScreen(struct Section *section);

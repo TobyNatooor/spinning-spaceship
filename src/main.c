@@ -110,3 +110,14 @@ bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections) {
   }
   return false;
 }
+
+void DrawSections(struct Section *sections) {
+  while (sections != NULL) {
+    struct WallList *wallList = sections->wallList;
+    while (wallList != NULL) {
+      DrawLineV(wallList->wallStart, wallList->wallEnd, WHITE);
+      wallList = wallList->next;
+    }
+    sections = sections->next;
+  }
+}

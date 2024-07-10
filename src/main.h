@@ -12,4 +12,9 @@ struct LoopArg {
 
 struct LoopArg *Setup(void);
 void Loop(void *loopArg);
+
+// Draw functions
+void DrawSections(struct Section *sections);
+
+// Collision functions
 bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections);
