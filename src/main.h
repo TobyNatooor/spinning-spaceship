@@ -28,24 +28,26 @@ void Loop(void *loopArg);
 
 // Wall-related functions
 void AddWall(struct WallList **head, struct WallList *newWall);
-void AddWallV(struct WallList **head, Vector2 startPoint, Vector2 endPoint);
+void AddWallV(struct Section *section, Vector2 startPoint, Vector2 endPoint);
 void MoveSectionsDown(struct Section *sections, int offset);
 bool WallIsOutOfScreen(struct WallList *head);
 void RemoveWall(struct WallList **head);
 struct WallList *GetLastWall(struct WallList *head);
 void FreeWallList(struct WallList *wallList);
+int CountWalls(struct WallList *wallList);
 
 // Section-related functions
 void AddStraightSection(struct Section **section, Vector2 offset);
 void AddCurveLeftSection(struct Section **section, Vector2 offset);
 void AddCurveRightSection(struct Section **section, Vector2 offset);
-void AddSection(struct Section **sections, struct Section *newSection);
+struct Section *AddSection(struct Section **sections, struct WallList *wallList);
 void RemoveSection(struct Section **sections);
 void DrawSections(struct Section *sections);
 int CountSections(struct Section *sections);
 bool SectionIsOutOfScreen(struct Section *section);
 void RemoveSectionIfOutOfScreen(struct Section **sections);
 void FreeSections(struct Section *sections);
+struct Section *GetFirstSection(struct Section *sections);
 
 // Collision-related functions
 bool IsPlayerCollidingWalls(struct Player *player, struct Section *sections);
