@@ -7,6 +7,7 @@ typedef struct SectionNode {
 } SectionNode;
 
 void AddSection(SectionNode **sections, SectionNode *newSection);
+void AddSectionFrom(SectionNode **sections, WallNode *walls);
 void RemoveSection(SectionNode **sections);
 int CountSections(SectionNode *sections);
 void MoveSection(SectionNode *section, Vector2 offset);

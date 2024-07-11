@@ -68,7 +68,7 @@ void Loop(void *loopArg_) {
   if (IsPlayerCollidingWalls(player, *sections))
     printf("hit wall\n");
 
-  if (CountSections(*sections) <= 1) {
+  if (CountSections(*sections) <= 2) {
     switch (rand() % 3) {
     case 0:
       AddStraightSection(sections);
