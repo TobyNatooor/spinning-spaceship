@@ -51,18 +51,6 @@ void RemoveSectionIfOutOfScreen(SectionNode **sections) {
   }
 }
 
-void MoveSectionsDown(SectionNode *sections, int offset) {
-  while (sections != NULL) {
-    WallNode *wallNode = sections->walls;
-    while (wallNode != NULL) {
-      wallNode->wallStart.y += offset;
-      wallNode->wallEnd.y += offset;
-      wallNode = wallNode->next;
-    }
-    sections = sections->next;
-  }
-}
-
 bool SectionIsOutOfScreen(SectionNode *section) {
   assert(section != NULL);
 
@@ -75,50 +63,84 @@ bool SectionIsOutOfScreen(SectionNode *section) {
   return true;
 }
 
-void AddStraightSection(SectionNode **sections, Vector2 offset) {
-  SectionNode *section = malloc(sizeof(SectionNode));
-  section->prev = NULL;
-  section->next = NULL;
-  section->walls = NULL;
-  AddSection(sections, section);
-  AddWallV(&section->walls, (Vector2){300 + offset.x, 0 + offset.y},
-           (Vector2){300 + offset.x, SCREEN_HEIGHT + offset.y});
-  AddWallV(&section->walls, (Vector2){500 + offset.x, 0 + offset.y},
-           (Vector2){500 + offset.x, SCREEN_HEIGHT + offset.y});
+void MoveSection(SectionNode *section, Vector2 offset) {
+  WallNode *wall = section->walls;
+  while (wall != NULL) {
+    wall->wallStart.x += offset.x;
+    wall->wallStart.y += offset.y;
+    wall->wallEnd.x += offset.x;
+    wall->wallEnd.y += offset.y;
+    wall = wall->next;
+  }
 }
 
-void AddCurveLeftSection(SectionNode **sections, Vector2 offset) {
-  SectionNode *section = malloc(sizeof(SectionNode));
-  section->prev = NULL;
-  section->next = NULL;
-  section->walls = NULL;
-  AddSection(sections, section);
-  AddWallV(&section->walls, (Vector2){300 + offset.x, 0 + offset.y},
-           (Vector2){200 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
-  AddWallV(&section->walls,
-           (Vector2){200 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
-           (Vector2){300 + offset.x, SCREEN_HEIGHT + offset.y});
-  AddWallV(&section->walls, (Vector2){500 + offset.x, 0 + offset.y},
-           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
-  AddWallV(&section->walls,
-           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
-           (Vector2){500 + offset.x, SCREEN_HEIGHT + offset.y});
+void MoveSections(SectionNode *sections, Vector2 offset) {
+  while (sections != NULL) {
+    MoveSection(sections, offset);
+    sections = sections->next;
+  }
 }
 
-void AddCurveRightSection(SectionNode **sections, Vector2 offset) {
+float GetSectionTopY(SectionNode *section) {
+  WallNode *wall = section->walls;
+  float topY = wall->wallStart.y;
+  while (wall != NULL) {
+    if (wall->wallStart.y < topY)
+      topY = wall->wallStart.y;
+    if (wall->wallEnd.y < topY)
+      topY = wall->wallEnd.y;
+    wall = wall->next;
+  }
+  return topY;
+}
+
+void AddStraightSection(SectionNode **sections) {
   SectionNode *section = malloc(sizeof(SectionNode));
   section->prev = NULL;
   section->next = NULL;
   section->walls = NULL;
   AddSection(sections, section);
-  AddWallV(&section->walls, (Vector2){300 + offset.x, 0 + offset.y},
-           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
-  AddWallV(&section->walls,
-           (Vector2){400 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
-           (Vector2){300 + offset.x, SCREEN_HEIGHT + offset.y});
-  AddWallV(&section->walls, (Vector2){500 + offset.x, 0 + offset.y},
-           (Vector2){600 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y});
-  AddWallV(&section->walls,
-           (Vector2){600 + offset.x, SCREEN_HEIGHT / 2.0 + offset.y},
-           (Vector2){500 + offset.x, SCREEN_HEIGHT + offset.y});
+  AddWallV(&section->walls, (Vector2){300, 0}, (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(&section->walls, (Vector2){500, 0}, (Vector2){500, SCREEN_HEIGHT});
+
+  float topY = GetSectionTopY(*sections);
+  MoveSection(section, (Vector2){0, -SCREEN_HEIGHT + topY});
+}
+
+void AddCurveLeftSection(SectionNode **sections) {
+  SectionNode *section = malloc(sizeof(SectionNode));
+  section->prev = NULL;
+  section->next = NULL;
+  section->walls = NULL;
+  AddSection(sections, section);
+  AddWallV(&section->walls, (Vector2){300, 0},
+           (Vector2){200, SCREEN_HEIGHT / 2.0});
+  AddWallV(&section->walls, (Vector2){200, SCREEN_HEIGHT / 2.0},
+           (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(&section->walls, (Vector2){500, 0},
+           (Vector2){400, SCREEN_HEIGHT / 2.0});
+  AddWallV(&section->walls, (Vector2){400, SCREEN_HEIGHT / 2.0},
+           (Vector2){500, SCREEN_HEIGHT});
+
+  float topY = GetSectionTopY(*sections);
+  MoveSection(section, (Vector2){0, -SCREEN_HEIGHT + topY});
+}
+
+void AddCurveRightSection(SectionNode **sections) {
+  SectionNode *section = malloc(sizeof(SectionNode));
+  section->prev = NULL;
+  section->next = NULL;
+  section->walls = NULL;
+  AddSection(sections, section);
+  AddWallV(&section->walls, (Vector2){300, 0},
+           (Vector2){400, SCREEN_HEIGHT / 2.0});
+  AddWallV(&section->walls, (Vector2){400, SCREEN_HEIGHT / 2.0},
+           (Vector2){300, SCREEN_HEIGHT});
+  AddWallV(&section->walls, (Vector2){500, 0},
+           (Vector2){600, SCREEN_HEIGHT / 2.0});
+  AddWallV(&section->walls, (Vector2){600, SCREEN_HEIGHT / 2.0},
+           (Vector2){500, SCREEN_HEIGHT});
+
+  float topY = GetSectionTopY(*sections);
+  MoveSection(section, (Vector2){0, -SCREEN_HEIGHT + topY});
 }

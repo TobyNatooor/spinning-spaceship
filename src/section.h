@@ -9,9 +9,11 @@ typedef struct SectionNode {
 void AddSection(SectionNode **sections, SectionNode *newSection);
 void RemoveSection(SectionNode **sections);
 int CountSections(SectionNode *sections);
-void MoveSectionsDown(SectionNode *sections, int offset);
+void MoveSection(SectionNode *section, Vector2 offset);
+void MoveSections(SectionNode *sections, Vector2 offset);
 bool SectionIsOutOfScreen(SectionNode *section);
 void RemoveSectionIfOutOfScreen(SectionNode **sections);
-void AddStraightSection(SectionNode **sections, Vector2 offset);
-void AddCurveLeftSection(SectionNode **sections, Vector2 offset);
-void AddCurveRightSection(SectionNode **sections, Vector2 offset);
+void AddStraightSection(SectionNode **sections);
+void AddCurveLeftSection(SectionNode **sections);
+void AddCurveRightSection(SectionNode **sections);
+float GetSectionTopY(SectionNode *section);

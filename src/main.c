@@ -1,7 +1,7 @@
+#include "main.h"
+#include "include/raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "include/raylib.h"
-#include "main.h"
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
@@ -40,7 +40,7 @@ LoopArg *Setup(void) {
   LoopArg *loopArg = malloc(sizeof(LoopArg));
   loopArg->player = player;
   loopArg->sections = NULL;
-  AddStraightSection(&loopArg->sections, (Vector2){0, 0});
+  AddStraightSection(&loopArg->sections);
 
   return loopArg;
 }
@@ -61,7 +61,7 @@ void Loop(void *loopArg_) {
   if (IsKeyDown(KEY_S))
     player->position.y += 200 * frameTime;
 
-  MoveSectionsDown(*sections, 500 * frameTime);
+  MoveSections(*sections, (Vector2){0, 500 * frameTime});
 
   RemoveSectionIfOutOfScreen(sections);
 
@@ -71,13 +71,13 @@ void Loop(void *loopArg_) {
   if (CountSections(*sections) <= 1) {
     switch (rand() % 3) {
     case 0:
-      AddStraightSection(sections, (Vector2){0, -SCREEN_HEIGHT});
+      AddStraightSection(sections);
       break;
     case 1:
-      AddCurveLeftSection(sections, (Vector2){0, -SCREEN_HEIGHT});
+      AddCurveLeftSection(sections);
       break;
     case 2:
-      AddCurveRightSection(sections, (Vector2){0, -SCREEN_HEIGHT});
+      AddCurveRightSection(sections);
       break;
     }
   }
