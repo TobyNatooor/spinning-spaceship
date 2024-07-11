@@ -8,8 +8,9 @@
 #endif
 
 int main(void) {
-  LoopArg *loopArg = Setup();
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Spinning Spaceship");
+
+  LoopArg *loopArg = Setup();
 
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop_arg(Loop, loopArg, 0, 1);
@@ -23,6 +24,7 @@ int main(void) {
 
   CloseWindow();
 
+  UnloadTexture(loopArg->player->texture);
   free(loopArg->player);
   while (loopArg->sections != NULL)
     RemoveSection(&loopArg->sections);
@@ -33,9 +35,22 @@ int main(void) {
 
 LoopArg *Setup(void) {
   Player *player = malloc(sizeof(Player));
+  Image playerImage = LoadImage("resources/spaceship.png");
+  ImageResize(&playerImage, 100, 100);
+  player->texture = LoadTextureFromImage(playerImage);
   player->position.x = SCREEN_WIDTH / 2.0;
   player->position.y = SCREEN_HEIGHT / 2.0;
-  player->radius = 50;
+  player->radius = 20;
+  player->collisionLines = NULL;
+  AddWallV(&player->collisionLines,
+           (Vector2){player->position.x - 30, player->position.y + 50},
+           (Vector2){player->position.x, player->position.y - 50});
+  AddWallV(&player->collisionLines,
+           (Vector2){player->position.x, player->position.y - 50},
+           (Vector2){player->position.x + 30, player->position.y + 50});
+  AddWallV(&player->collisionLines,
+           (Vector2){player->position.x + 30, player->position.y + 50},
+           (Vector2){player->position.x - 30, player->position.y + 50});
 
   LoopArg *loopArg = malloc(sizeof(LoopArg));
   loopArg->player = player;
@@ -52,14 +67,17 @@ void Loop(void *loopArg_) {
 
   float frameTime = GetFrameTime();
 
+  Vector2 direction = {0, 0};
   if (IsKeyDown(KEY_A))
-    player->position.x -= 200 * frameTime;
+    direction.x -= 200 * frameTime;
   if (IsKeyDown(KEY_D))
-    player->position.x += 200 * frameTime;
+    direction.x += 200 * frameTime;
   if (IsKeyDown(KEY_W))
-    player->position.y -= 200 * frameTime;
+    direction.y -= 200 * frameTime;
   if (IsKeyDown(KEY_S))
-    player->position.y += 200 * frameTime;
+    direction.y += 200 * frameTime;
+
+  MovePlayer(player, direction);
 
   MoveSections(*sections, (Vector2){0, 500 * frameTime});
 
@@ -86,18 +104,44 @@ void Loop(void *loopArg_) {
 
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
-  DrawCircle(player->position.x, player->position.y, player->radius, WHITE);
+  DrawTexture(player->texture, player->position.x - player->texture.width / 2.0,
+              player->position.y - player->texture.height / 2.0, WHITE);
+
+  // LineNode *collisionLines = player->collisionLines;
+  // while (collisionLines != NULL) {
+  //   DrawLineV(collisionLines->wallStart, collisionLines->wallEnd, RED);
+  //   collisionLines = collisionLines->next;
+  // }
 
   EndDrawing();
+}
+
+void MovePlayer(Player *player, Vector2 direction) {
+  player->position.x += direction.x;
+  player->position.y += direction.y;
+
+  LineNode *collisionLines = player->collisionLines;
+  while (collisionLines != NULL) {
+    collisionLines->wallStart.x += direction.x;
+    collisionLines->wallStart.y += direction.y;
+    collisionLines->wallEnd.x += direction.x;
+    collisionLines->wallEnd.y += direction.y;
+    collisionLines = collisionLines->next;
+  }
 }
 
 bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
   while (sections != NULL) {
     WallNode *wallList = sections->walls;
     while (wallList != NULL) {
-      if (CheckCollisionCircleLine(player->position, player->radius,
-                                   wallList->wallStart, wallList->wallEnd))
-        return true;
+      LineNode *collisionLines = player->collisionLines;
+      while (collisionLines != NULL) {
+        if (CheckCollisionLines(wallList->wallStart, wallList->wallEnd,
+                                collisionLines->wallStart,
+                                collisionLines->wallEnd, NULL))
+          return true;
+        collisionLines = collisionLines->next;
+      }
       wallList = wallList->next;
     }
     sections = sections->next;

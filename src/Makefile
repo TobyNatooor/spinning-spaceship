@@ -13,7 +13,7 @@ endif
 all: $(FILES)
 ifeq ($(PLATFORM), PLATFORM_WEB)
 	mkdir --parents ../out/web
-	$(CC) $(FILES) -o ../out/web/main.html $(CFLAGS) -Os ./lib/web/libraylib.a -I. -Iinclude -s USE_GLFW=3 --shell-file index.html -DPLATFORM_WEB
+	$(CC) $(FILES) -o ../out/web/main.html $(CFLAGS) -Os ./lib/web/libraylib.a -I. -Iinclude -s USE_GLFW=3 --shell-file index.html -DPLATFORM_WEB --preload-file resources/spaceship.png -s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1
 endif
 ifeq ($(PLATFORM), PLATFORM_DESKTOP)
 	mkdir --parents ../out/desktop
