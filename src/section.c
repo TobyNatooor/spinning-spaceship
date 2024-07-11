@@ -15,6 +15,7 @@ void AddSection(SectionNode **sections, SectionNode *newSection) {
 
   last->next = newSection;
   newSection->prev = last;
+  printf("added new section, total: %d\n", CountSections(*sections));
 }
 
 void RemoveSection(SectionNode **section) {
@@ -32,6 +33,7 @@ void RemoveSection(SectionNode **section) {
     prev->next = next;
   else
     *section = next;
+  printf("removed section\n");
 }
 
 int CountSections(SectionNode *sections) {

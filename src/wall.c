@@ -52,10 +52,7 @@ int CountWalls(WallNode *walls) {
 bool WallIsOutOfScreen(WallNode *head) {
   assert(head != NULL);
 
-  if ((0 > head->wallEnd.x || head->wallEnd.x > SCREEN_WIDTH ||
-       0 > head->wallEnd.y || head->wallEnd.y > SCREEN_HEIGHT) &&
-      (0 > head->wallStart.x || head->wallStart.x > SCREEN_WIDTH ||
-       0 > head->wallStart.y || head->wallStart.y > SCREEN_HEIGHT))
+  if (head->wallEnd.y > SCREEN_HEIGHT && head->wallStart.y > SCREEN_HEIGHT)
     return true;
   return false;
 }
