@@ -15,7 +15,6 @@ void AddSection(SectionNode **sections, SectionNode *newSection) {
 
   last->next = newSection;
   newSection->prev = last;
-  printf("added new section, total: %d\n", CountSections(*sections));
 }
 
 void RemoveSection(SectionNode **section) {
@@ -33,7 +32,6 @@ void RemoveSection(SectionNode **section) {
     prev->next = next;
   else
     *section = next;
-  printf("removed section\n");
 }
 
 int CountSections(SectionNode *sections) {
@@ -105,7 +103,8 @@ void AddSectionFrom(SectionNode **sections, WallNode *walls) {
   section->walls = walls;
 
   float topY = GetSectionTopY(*sections);
-  MoveSection(section, (Vector2){0, topY - SCREEN_HEIGHT * CountSections(*sections)});
+  MoveSection(section,
+              (Vector2){0, topY - SCREEN_HEIGHT * CountSections(*sections)});
   AddSection(sections, section);
 }
 
