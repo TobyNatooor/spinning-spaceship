@@ -110,29 +110,35 @@ void AddSectionFrom(SectionNode **sections, WallNode *walls) {
 
 void AddStraightSection(SectionNode **sections) {
   WallNode *walls = NULL;
-  AddWallV(&walls, (Vector2){300, 0}, (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(&walls, (Vector2){500, 0}, (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
+           (Vector2){SCREEN_WIDTH * 0.3, SCREEN_HEIGHT});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
+           (Vector2){SCREEN_WIDTH * 0.7, SCREEN_HEIGHT});
   AddSectionFrom(sections, walls);
 }
 
 void AddCurveLeftSection(SectionNode **sections) {
   WallNode *walls = NULL;
-  AddWallV(&walls, (Vector2){300, 0}, (Vector2){200, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){200, SCREEN_HEIGHT / 2.0},
-           (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(&walls, (Vector2){500, 0}, (Vector2){400, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){400, SCREEN_HEIGHT / 2.0},
-           (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
+           (Vector2){SCREEN_WIDTH * 0.1, SCREEN_HEIGHT / 2.0});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.1, SCREEN_HEIGHT / 2.0},
+           (Vector2){SCREEN_WIDTH * 0.3, SCREEN_HEIGHT});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
+           (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0},
+           (Vector2){SCREEN_WIDTH * 0.7, SCREEN_HEIGHT});
   AddSectionFrom(sections, walls);
 }
 
 void AddCurveRightSection(SectionNode **sections) {
   WallNode *walls = NULL;
-  AddWallV(&walls, (Vector2){300, 0}, (Vector2){400, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){400, SCREEN_HEIGHT / 2.0},
-           (Vector2){300, SCREEN_HEIGHT});
-  AddWallV(&walls, (Vector2){500, 0}, (Vector2){600, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){600, SCREEN_HEIGHT / 2.0},
-           (Vector2){500, SCREEN_HEIGHT});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
+           (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0},
+           (Vector2){SCREEN_WIDTH * 0.3, SCREEN_HEIGHT});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
+           (Vector2){SCREEN_WIDTH * 0.9, SCREEN_HEIGHT / 2.0});
+  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.9, SCREEN_HEIGHT / 2.0},
+           (Vector2){SCREEN_WIDTH * 0.7, SCREEN_HEIGHT});
   AddSectionFrom(sections, walls);
 }
