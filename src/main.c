@@ -172,7 +172,13 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
       *display = StartScreen;
     }
   }
-  DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
+  if (player->isDead) {
+    const char *text = TextFormat("Score: %.2f", player->score);
+    int textWidth = MeasureText(text, 30);
+    DrawText(text, SCREEN_WIDTH / 2.0 - textWidth / 2.0, 160, 30, WHITE);
+  } else {
+    DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
+  }
 
   EndDrawing();
 }
