@@ -38,6 +38,7 @@ void InitNewGame(Player *player, SectionNode **sections) {
   player->position.x = SCREEN_WIDTH / 2.0;
   player->position.y = SCREEN_HEIGHT / 2.0;
   player->isDead = false;
+  player->score = 0;
 
   while (player->collisionLines != NULL)
     RemoveLine(&player->collisionLines);
@@ -112,6 +113,8 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
   if (!player->isDead) {
     float frameTime = GetFrameTime();
 
+    player->score += frameTime;
+
     Vector2 direction = {0, 0};
     if (IsKeyDown(KEY_A))
       direction.x -= 200 * frameTime;
@@ -169,6 +172,7 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
       *display = StartScreen;
     }
   }
+  DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
 
   EndDrawing();
 }
