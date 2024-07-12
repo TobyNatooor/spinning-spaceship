@@ -10,6 +10,7 @@ typedef struct Player {
   Texture2D texture;
   LineNode *collisionLines;
   Vector2 position;
+  float rotation;
   float score;
   bool isDead;
 } Player;

@@ -37,21 +37,19 @@ int main(void) {
 void InitNewGame(Player *player, SectionNode **sections) {
   player->position.x = SCREEN_WIDTH / 2.0;
   player->position.y = SCREEN_HEIGHT / 2.0;
+  player->rotation = 0;
   player->isDead = false;
   player->score = 0;
 
   while (player->collisionLines != NULL)
     RemoveLine(&player->collisionLines);
 
-  AddLineV(&player->collisionLines,
-           (Vector2){player->position.x - 30, player->position.y + 50},
-           (Vector2){player->position.x, player->position.y - 50});
-  AddLineV(&player->collisionLines,
-           (Vector2){player->position.x, player->position.y - 50},
-           (Vector2){player->position.x + 30, player->position.y + 50});
-  AddLineV(&player->collisionLines,
-           (Vector2){player->position.x + 30, player->position.y + 50},
-           (Vector2){player->position.x - 30, player->position.y + 50});
+  Vector2 point1 = (Vector2){player->position.x - 30, player->position.y + 50};
+  Vector2 point2 = (Vector2){player->position.x, player->position.y - 50};
+  Vector2 point3 = (Vector2){player->position.x + 30, player->position.y + 50};
+  AddLineV(&player->collisionLines, point1, point2);
+  AddLineV(&player->collisionLines, point2, point3);
+  AddLineV(&player->collisionLines, point3, point1);
 
   while (*sections != NULL)
     RemoveSection(sections);
@@ -113,6 +111,7 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
   if (!player->isDead) {
     float frameTime = GetFrameTime();
 
+    player->rotation += 10 * frameTime;
     player->score += frameTime;
 
     Vector2 direction = {0, 0};
@@ -155,8 +154,16 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
 
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
-  DrawTexture(player->texture, player->position.x - player->texture.width / 2.0,
-              player->position.y - player->texture.height / 2.0, WHITE);
+  DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
+                 (Rectangle){player->position.x,
+                             player->position.y,
+                             100, 100},
+                 (Vector2){50, 50}, player->rotation, WHITE);
+  LineNode *collisionLines = player->collisionLines;
+  while (collisionLines != NULL) {
+    DrawLineV(collisionLines->start, collisionLines->end, RED);
+    collisionLines = collisionLines->next;
+  }
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
                                SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
