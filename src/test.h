@@ -1,4 +1,4 @@
 #include "section.h"
 
-void TestWall();
+void TestLine();
 void TestSection();

@@ -4,62 +4,62 @@
 #include <stdlib.h>
 
 int main() {
-  TestWall();
+  TestLine();
   TestSection();
 
   return 0;
 }
 
-void TestWall() {
+void TestLine() {
   printf("testing walls...\n");
 
-  WallNode *walls = NULL;
-  assert(CountWalls(walls) == 0);
+  LineNode *lines = NULL;
+  assert(CountLines(lines) == 0);
 
-  WallNode *wall1 = malloc(sizeof(WallNode));
-  wall1->prev = NULL;
-  wall1->next = NULL;
-  wall1->wallStart = (Vector2){1, 1};
-  wall1->wallEnd = (Vector2){1, 1};
-  AddWall(&walls, wall1);
-  assert(CountWalls(walls) == 1);
+  LineNode *line1 = malloc(sizeof(LineNode));
+  line1->prev = NULL;
+  line1->next = NULL;
+  line1->start = (Vector2){1, 1};
+  line1->end = (Vector2){1, 1};
+  AddLine(&lines, line1);
+  assert(CountLines(lines) == 1);
 
-  WallNode *wall2 = malloc(sizeof(WallNode));
-  wall2->prev = NULL;
-  wall2->next = NULL;
-  wall2->wallStart = (Vector2){2, 2};
-  wall2->wallEnd = (Vector2){2, 2};
-  AddWall(&walls, wall2);
-  assert(CountWalls(walls) == 2);
+  LineNode *line2 = malloc(sizeof(LineNode));
+  line2->prev = NULL;
+  line2->next = NULL;
+  line2->start = (Vector2){2, 2};
+  line2->end = (Vector2){2, 2};
+  AddLine(&lines, line2);
+  assert(CountLines(lines) == 2);
 
-  WallNode *wall3 = malloc(sizeof(WallNode));
-  wall3->prev = NULL;
-  wall3->next = NULL;
-  wall3->wallStart = (Vector2){3, 3};
-  wall3->wallEnd = (Vector2){3, 3};
-  AddWall(&walls, wall3);
-  assert(CountWalls(walls) == 3);
+  LineNode *line3 = malloc(sizeof(LineNode));
+  line3->prev = NULL;
+  line3->next = NULL;
+  line3->start = (Vector2){3, 3};
+  line3->end = (Vector2){3, 3};
+  AddLine(&lines, line3);
+  assert(CountLines(lines) == 3);
 
   printf("added walls succesfully\n");
 
-  assert(walls->wallStart.x == 1);
-  assert(walls->next->wallStart.x == 2);
-  assert(walls->next->next->wallStart.x == 3);
+  assert(lines->start.x == 1);
+  assert(lines->next->start.x == 2);
+  assert(lines->next->next->start.x == 3);
 
   printf("order of walls is correct\n");
 
-  RemoveWall(&walls->next);
-  assert(CountWalls(walls) == 2);
-  assert(walls->wallStart.x == 1);
-  assert(walls->next->wallStart.x == 3);
+  RemoveLine(&lines->next);
+  assert(CountLines(lines) == 2);
+  assert(lines->start.x == 1);
+  assert(lines->next->start.x == 3);
 
-  RemoveWall(&walls);
-  assert(CountWalls(walls) == 1);
-  assert(walls->wallStart.x == 3);
+  RemoveLine(&lines);
+  assert(CountLines(lines) == 1);
+  assert(lines->start.x == 3);
 
-  RemoveWall(&walls);
-  assert(CountWalls(walls) == 0);
-  assert(walls == NULL);
+  RemoveLine(&lines);
+  assert(CountLines(lines) == 0);
+  assert(lines == NULL);
 
   printf("removed walls succesfully\n");
 }
@@ -76,7 +76,7 @@ void TestSection() {
   section1->walls = NULL;
   AddSection(&sections, section1);
   assert(CountSections(sections) == 1);
-  assert(CountWalls(section1->walls) == 0);
+  assert(CountLines(section1->walls) == 0);
 
   SectionNode *section2 = malloc(sizeof(SectionNode));
   section2->prev = NULL;
@@ -85,13 +85,13 @@ void TestSection() {
   AddSection(&sections, section2);
   assert(CountSections(sections) == 2);
 
-  WallNode *wallNode1 = malloc(sizeof(WallNode));
+  LineNode *wallNode1 = malloc(sizeof(LineNode));
   wallNode1->prev = NULL;
   wallNode1->next = NULL;
-  wallNode1->wallStart = (Vector2){1, 1};
-  wallNode1->wallEnd = (Vector2){1, 1};
-  AddWall(&section2->walls, wallNode1);
-  assert(CountWalls(section2->walls) == 1);
+  wallNode1->start = (Vector2){1, 1};
+  wallNode1->end = (Vector2){1, 1};
+  AddLine(&section2->walls, wallNode1);
+  assert(CountLines(section2->walls) == 1);
 
   SectionNode *section3 = malloc(sizeof(SectionNode));
   section3->prev = NULL;
@@ -99,7 +99,7 @@ void TestSection() {
   section3->walls = NULL;
   AddSection(&sections, section3);
   assert(CountSections(sections) == 3);
-  assert(CountWalls(section3->walls) == 0);
+  assert(CountLines(section3->walls) == 0);
 
   printf("added sections succesfully\n");
 
@@ -107,7 +107,7 @@ void TestSection() {
   assert(CountSections(sections) == 2);
   RemoveSection(&sections);
   assert(CountSections(sections) == 1);
-  assert(CountWalls(sections->walls) == 1);
+  assert(CountLines(sections->walls) == 1);
   RemoveSection(&sections);
   assert(CountSections(sections) == 0);
 

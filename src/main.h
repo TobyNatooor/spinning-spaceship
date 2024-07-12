@@ -1,8 +1,6 @@
 #include "include/raylib.h"
 #include "section.h"
 
-typedef WallNode LineNode;
-
 typedef enum Display {
   StartScreen,
   GameScreen,
@@ -33,7 +31,7 @@ void MovePlayer(Player *player, Vector2 direction);
 bool IsButtonClicked(Rectangle button);
 
 // Draw functions
-void DrawWalls(WallNode *wallList);
+void DrawLines(LineNode *lines);
 void DrawSections(SectionNode *sections);
 void DrawButton(Rectangle rect, const char *text, int font, Color color,
                 float borderWidth, Color borderColor);

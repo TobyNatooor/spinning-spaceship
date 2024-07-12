@@ -40,15 +40,15 @@ void InitNewGame(Player *player, SectionNode **sections) {
   player->isDead = false;
 
   while (player->collisionLines != NULL)
-    RemoveWall(&player->collisionLines);
+    RemoveLine(&player->collisionLines);
 
-  AddWallV(&player->collisionLines,
+  AddLineV(&player->collisionLines,
            (Vector2){player->position.x - 30, player->position.y + 50},
            (Vector2){player->position.x, player->position.y - 50});
-  AddWallV(&player->collisionLines,
+  AddLineV(&player->collisionLines,
            (Vector2){player->position.x, player->position.y - 50},
            (Vector2){player->position.x + 30, player->position.y + 50});
-  AddWallV(&player->collisionLines,
+  AddLineV(&player->collisionLines,
            (Vector2){player->position.x + 30, player->position.y + 50},
            (Vector2){player->position.x - 30, player->position.y + 50});
 
@@ -174,23 +174,23 @@ void MovePlayer(Player *player, Vector2 direction) {
 
   LineNode *collisionLines = player->collisionLines;
   while (collisionLines != NULL) {
-    collisionLines->wallStart.x += direction.x;
-    collisionLines->wallStart.y += direction.y;
-    collisionLines->wallEnd.x += direction.x;
-    collisionLines->wallEnd.y += direction.y;
+    collisionLines->start.x += direction.x;
+    collisionLines->start.y += direction.y;
+    collisionLines->end.x += direction.x;
+    collisionLines->end.y += direction.y;
     collisionLines = collisionLines->next;
   }
 }
 
 bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
   while (sections != NULL) {
-    WallNode *wallList = sections->walls;
+    LineNode *wallList = sections->walls;
     while (wallList != NULL) {
       LineNode *collisionLines = player->collisionLines;
       while (collisionLines != NULL) {
-        if (CheckCollisionLines(wallList->wallStart, wallList->wallEnd,
-                                collisionLines->wallStart,
-                                collisionLines->wallEnd, NULL))
+        if (CheckCollisionLines(wallList->start, wallList->end,
+                                collisionLines->start,
+                                collisionLines->end, NULL))
           return true;
         collisionLines = collisionLines->next;
       }
@@ -201,16 +201,16 @@ bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
   return false;
 }
 
-void DrawWalls(WallNode *wallList) {
-  while (wallList != NULL) {
-    DrawLineV(wallList->wallStart, wallList->wallEnd, WHITE);
-    wallList = wallList->next;
+void DrawLines(LineNode *lines) {
+  while (lines != NULL) {
+    DrawLineV(lines->start, lines->end, WHITE);
+    lines = lines->next;
   }
 }
 
 void DrawSections(SectionNode *sections) {
   while (sections != NULL) {
-    DrawWalls(sections->walls);
+    DrawLines(sections->walls);
     sections = sections->next;
   }
 }

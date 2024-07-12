@@ -18,9 +18,9 @@ void AddSection(SectionNode **sections, SectionNode *newSection) {
 }
 
 void RemoveSection(SectionNode **section) {
-  WallNode *wallNode = (*section)->walls;
+  LineNode *wallNode = (*section)->walls;
   while (wallNode != NULL)
-    RemoveWall(&wallNode);
+    RemoveLine(&wallNode);
 
   SectionNode *prev = (*section)->prev;
   SectionNode *next = (*section)->next;
@@ -54,9 +54,9 @@ void RemoveSectionIfOutOfScreen(SectionNode **sections) {
 bool SectionIsOutOfScreen(SectionNode *section) {
   assert(section != NULL);
 
-  WallNode *wallNode = section->walls;
+  LineNode *wallNode = section->walls;
   while (wallNode != NULL) {
-    if (!WallIsOutOfScreen(wallNode))
+    if (!LineIsOutOfScreen(wallNode))
       return false;
     wallNode = wallNode->next;
   }
@@ -64,12 +64,12 @@ bool SectionIsOutOfScreen(SectionNode *section) {
 }
 
 void MoveSection(SectionNode *section, Vector2 offset) {
-  WallNode *wall = section->walls;
+  LineNode *wall = section->walls;
   while (wall != NULL) {
-    wall->wallStart.x += offset.x;
-    wall->wallStart.y += offset.y;
-    wall->wallEnd.x += offset.x;
-    wall->wallEnd.y += offset.y;
+    wall->start.x += offset.x;
+    wall->start.y += offset.y;
+    wall->end.x += offset.x;
+    wall->end.y += offset.y;
     wall = wall->next;
   }
 }
@@ -84,19 +84,19 @@ void MoveSections(SectionNode *sections, Vector2 offset) {
 float GetSectionTopY(SectionNode *section) {
   if (section == NULL)
     return 0;
-  WallNode *wall = section->walls;
-  float topY = wall->wallStart.y;
+  LineNode *wall = section->walls;
+  float topY = wall->start.y;
   while (wall != NULL) {
-    if (wall->wallStart.y < topY)
-      topY = wall->wallStart.y;
-    if (wall->wallEnd.y < topY)
-      topY = wall->wallEnd.y;
+    if (wall->start.y < topY)
+      topY = wall->start.y;
+    if (wall->end.y < topY)
+      topY = wall->end.y;
     wall = wall->next;
   }
   return topY;
 }
 
-void AddSectionFrom(SectionNode **sections, WallNode *walls) {
+void AddSectionFrom(SectionNode **sections, LineNode *walls) {
   SectionNode *section = malloc(sizeof(SectionNode));
   section->prev = NULL;
   section->next = NULL;
@@ -109,36 +109,36 @@ void AddSectionFrom(SectionNode **sections, WallNode *walls) {
 }
 
 void AddStraightSection(SectionNode **sections) {
-  WallNode *walls = NULL;
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
+  LineNode *walls = NULL;
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
            (Vector2){SCREEN_WIDTH * 0.3, SCREEN_HEIGHT});
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
            (Vector2){SCREEN_WIDTH * 0.7, SCREEN_HEIGHT});
   AddSectionFrom(sections, walls);
 }
 
 void AddCurveLeftSection(SectionNode **sections) {
-  WallNode *walls = NULL;
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
+  LineNode *walls = NULL;
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
            (Vector2){SCREEN_WIDTH * 0.1, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.1, SCREEN_HEIGHT / 2.0},
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.1, SCREEN_HEIGHT / 2.0},
            (Vector2){SCREEN_WIDTH * 0.3, SCREEN_HEIGHT});
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
            (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0},
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0},
            (Vector2){SCREEN_WIDTH * 0.7, SCREEN_HEIGHT});
   AddSectionFrom(sections, walls);
 }
 
 void AddCurveRightSection(SectionNode **sections) {
-  WallNode *walls = NULL;
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
+  LineNode *walls = NULL;
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.3, 0},
            (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0},
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.5, SCREEN_HEIGHT / 2.0},
            (Vector2){SCREEN_WIDTH * 0.3, SCREEN_HEIGHT});
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.7, 0},
            (Vector2){SCREEN_WIDTH * 0.9, SCREEN_HEIGHT / 2.0});
-  AddWallV(&walls, (Vector2){SCREEN_WIDTH * 0.9, SCREEN_HEIGHT / 2.0},
+  AddLineV(&walls, (Vector2){SCREEN_WIDTH * 0.9, SCREEN_HEIGHT / 2.0},
            (Vector2){SCREEN_WIDTH * 0.7, SCREEN_HEIGHT});
   AddSectionFrom(sections, walls);
 }

@@ -3,56 +3,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void AddWall(WallNode **walls, WallNode *newWall) {
-  if (*walls == NULL) {
-    *walls = newWall;
+void AddLine(LineNode **lines, LineNode *newLine) {
+  if (*lines == NULL) {
+    *lines = newLine;
     return;
   }
 
-  WallNode *last = *walls;
+  LineNode *last = *lines;
   while (last->next != NULL)
     last = last->next;
-  last->next = newWall;
+  last->next = newLine;
 
-  newWall->prev = last;
+  newLine->prev = last;
 }
 
-void AddWallV(WallNode **walls, Vector2 startPoint, Vector2 endPoint) {
-  WallNode *newWallNode = malloc(sizeof(WallNode));
-  newWallNode->wallStart = startPoint;
-  newWallNode->wallEnd = endPoint;
-  newWallNode->prev = NULL;
-  newWallNode->next = NULL;
-  AddWall(walls, newWallNode);
+void AddLineV(LineNode **lines, Vector2 startPoint, Vector2 endPoint) {
+  LineNode *newLineNode = malloc(sizeof(LineNode));
+  newLineNode->start = startPoint;
+  newLineNode->end = endPoint;
+  newLineNode->prev = NULL;
+  newLineNode->next = NULL;
+  AddLine(lines, newLineNode);
 }
 
-void RemoveWall(WallNode **walls) {
-  WallNode *prev = (*walls)->prev;
-  WallNode *next = (*walls)->next;
-  free(*walls);
-  *walls = NULL;
+void RemoveLine(LineNode **lines) {
+  LineNode *prev = (*lines)->prev;
+  LineNode *next = (*lines)->next;
+  free(*lines);
+  *lines = NULL;
 
   if (next != NULL)
     next->prev = prev;
   if (prev != NULL)
     prev->next = next;
   else
-    *walls = next;
+    *lines = next;
 }
 
-int CountWalls(WallNode *walls) {
+int CountLines(LineNode *head) {
   int count = 0;
-  while (walls != NULL) {
+  while (head != NULL) {
     count++;
-    walls = walls->next;
+    head = head->next;
   }
   return count;
 }
 
-bool WallIsOutOfScreen(WallNode *head) {
+bool LineIsOutOfScreen(LineNode *head) {
   assert(head != NULL);
 
-  if (head->wallEnd.y > SCREEN_HEIGHT && head->wallStart.y > SCREEN_HEIGHT)
+  if (head->end.y > SCREEN_HEIGHT && head->start.y > SCREEN_HEIGHT)
     return true;
   return false;
 }

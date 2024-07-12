@@ -3,11 +3,11 @@
 typedef struct SectionNode {
   struct SectionNode *next;
   struct SectionNode *prev;
-  WallNode *walls;
+  LineNode *walls;
 } SectionNode;
 
 void AddSection(SectionNode **sections, SectionNode *newSection);
-void AddSectionFrom(SectionNode **sections, WallNode *walls);
+void AddSectionFrom(SectionNode **sections, LineNode *walls);
 void RemoveSection(SectionNode **sections);
 int CountSections(SectionNode *sections);
 void MoveSection(SectionNode *section, Vector2 offset);
