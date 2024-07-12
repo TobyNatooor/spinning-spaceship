@@ -1,4 +1,4 @@
-#include "wall.h"
+#include "line.h"
 
 typedef struct SectionNode {
   struct SectionNode *next;

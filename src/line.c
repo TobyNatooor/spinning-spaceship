@@ -1,4 +1,4 @@
-#include "wall.h"
+#include "line.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
