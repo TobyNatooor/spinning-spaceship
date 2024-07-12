@@ -70,8 +70,6 @@ LoopArg *Setup(void) {
 
   loopArg->display = StartScreen;
 
-  InitNewGame(loopArg->player, &loopArg->sections);
-
   return loopArg;
 }
 
@@ -83,19 +81,20 @@ void Loop(void *loopArg_) {
 
   switch (*display) {
   case StartScreen:
-    LoopStart(display);
+    LoopStart(player, sections, display);
     break;
   case GameScreen:
-    LoopGame(player, sections);
+    LoopGame(player, sections, display);
     break;
   }
 }
 
-void LoopStart(Display *display) {
+void LoopStart(Player *player, SectionNode **sections, Display *display) {
   Rectangle startButton = {SCREEN_WIDTH * 0.1, 200, SCREEN_WIDTH * 0.8, 100};
-
-  if (IsButtonClicked(startButton))
+  if (IsButtonClicked(startButton)) {
     *display = GameScreen;
+    InitNewGame(player, sections);
+  }
 
   BeginDrawing();
 
@@ -109,7 +108,7 @@ void LoopStart(Display *display) {
   EndDrawing();
 }
 
-void LoopGame(Player *player, SectionNode **sections) {
+void LoopGame(Player *player, SectionNode **sections, Display *display) {
   if (!player->isDead) {
     float frameTime = GetFrameTime();
 
@@ -158,10 +157,16 @@ void LoopGame(Player *player, SectionNode **sections) {
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
                                SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
-    DrawButton(restartButton, "Restart Game", 20, DARKGRAY, 5, WHITE);
+    DrawButton(restartButton, "Restart Game", 20, DARKGRAY, 2, WHITE);
     if (IsButtonClicked(restartButton)) {
       InitNewGame(player, sections);
       printf("restart button clicked\n");
+    }
+    Rectangle mainMenuButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.45,
+                                SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
+    DrawButton(mainMenuButton, "Main Menu", 20, DARKGRAY, 2, WHITE);
+    if (IsButtonClicked(mainMenuButton)) {
+      *display = StartScreen;
     }
   }
 
@@ -189,8 +194,8 @@ bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
       LineNode *collisionLines = player->collisionLines;
       while (collisionLines != NULL) {
         if (CheckCollisionLines(wallList->start, wallList->end,
-                                collisionLines->start,
-                                collisionLines->end, NULL))
+                                collisionLines->start, collisionLines->end,
+                                NULL))
           return true;
         collisionLines = collisionLines->next;
       }
