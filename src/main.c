@@ -57,14 +57,56 @@ LoopArg *Setup(void) {
   loopArg->sections = NULL;
   AddStraightSection(&loopArg->sections);
 
+  loopArg->display = StartScreen;
+
   return loopArg;
 }
 
 void Loop(void *loopArg_) {
   LoopArg *arg = loopArg_;
+  Display *display = &arg->display;
   Player *player = arg->player;
   SectionNode **sections = &arg->sections;
 
+  switch (*display) {
+  case StartScreen:
+    LoopStart(display);
+    break;
+  case GameScreen:
+    LoopGame(player, sections);
+    break;
+  }
+}
+
+void LoopStart(Display *display) {
+  float tenthWidth = SCREEN_WIDTH / 10.0;
+  Rectangle startButton = {tenthWidth, 200, tenthWidth * 8, 100};
+
+  if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    Vector2 mousePosition = GetMousePosition();
+    if (CheckCollisionPointRec(mousePosition, startButton))
+      *display = GameScreen;
+  }
+
+  BeginDrawing();
+
+  ClearBackground(DARKGRAY);
+
+  int titleTextWidth = MeasureText("Spinning Spaceship", 40);
+  DrawText("Spinning Spaceship", SCREEN_WIDTH / 2 - titleTextWidth / 2, 100, 40, WHITE);
+
+
+  // Start button
+  DrawRectangleRec(startButton, WHITE);
+  DrawRectangle(startButton.x + 5, startButton.y + 5, startButton.width - 10,
+                startButton.height - 10, DARKGRAY);
+  int startButtonTextWidth =MeasureText("Start Game", 20);
+  DrawText("Start Game", tenthWidth * 5 - startButtonTextWidth / 2.0, 240, 20, WHITE);
+
+  EndDrawing();
+}
+
+void LoopGame(Player *player, SectionNode **sections) {
   float frameTime = GetFrameTime();
 
   Vector2 direction = {0, 0};
@@ -106,12 +148,6 @@ void Loop(void *loopArg_) {
   DrawSections(*sections);
   DrawTexture(player->texture, player->position.x - player->texture.width / 2.0,
               player->position.y - player->texture.height / 2.0, WHITE);
-
-  // LineNode *collisionLines = player->collisionLines;
-  // while (collisionLines != NULL) {
-  //   DrawLineV(collisionLines->wallStart, collisionLines->wallEnd, RED);
-  //   collisionLines = collisionLines->next;
-  // }
 
   EndDrawing();
 }

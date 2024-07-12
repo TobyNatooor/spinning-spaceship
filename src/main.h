@@ -1,6 +1,12 @@
 #include "section.h"
 
 typedef WallNode LineNode;
+
+typedef enum Display {
+  StartScreen,
+  GameScreen,
+} Display;
+
 typedef struct Player {
   Texture2D texture;
   LineNode *collisionLines;
@@ -9,12 +15,15 @@ typedef struct Player {
 } Player;
 
 typedef struct LoopArg {
+  Display display;
   Player *player;
   SectionNode *sections;
 } LoopArg;
 
 LoopArg *Setup(void);
 void Loop(void *loopArg);
+void LoopStart(Display *display);
+void LoopGame(Player *player, SectionNode **sections);
 
 void MovePlayer(Player *player, Vector2 direction);
 
