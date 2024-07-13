@@ -1,5 +1,6 @@
 #include "main.h"
 #include "include/raylib.h"
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,18 +112,31 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
   if (!player->isDead) {
     float frameTime = GetFrameTime();
 
-    player->rotation += 10 * frameTime;
     player->score += frameTime;
 
+    player->rotation += frameTime;
+    float speed = 1.5;
+    Vector2 forwardDirection = {cos(player->rotation - PI / 2),
+                                sin(player->rotation - PI / 2)};
+    Vector2 rightDirection = {cos(player->rotation), sin(player->rotation)};
+
     Vector2 direction = {0, 0};
-    if (IsKeyDown(KEY_A))
-      direction.x -= 200 * frameTime;
-    if (IsKeyDown(KEY_D))
-      direction.x += 200 * frameTime;
-    if (IsKeyDown(KEY_W))
-      direction.y -= 200 * frameTime;
-    if (IsKeyDown(KEY_S))
-      direction.y += 200 * frameTime;
+    if (IsKeyDown(KEY_A)) {
+      direction.x -= rightDirection.x * speed;
+      direction.y -= rightDirection.y * speed;
+    }
+    if (IsKeyDown(KEY_D)) {
+      direction.x += rightDirection.x * speed;
+      direction.y += rightDirection.y * speed;
+    }
+    if (IsKeyDown(KEY_W)) {
+      direction.x += forwardDirection.x * speed;
+      direction.y += forwardDirection.y * speed;
+    }
+    if (IsKeyDown(KEY_S)) {
+      direction.x -= forwardDirection.x * speed;
+      direction.y -= forwardDirection.y * speed;
+    }
 
     MovePlayer(player, direction);
 
@@ -155,15 +169,13 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
   DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
-                 (Rectangle){player->position.x,
-                             player->position.y,
-                             100, 100},
-                 (Vector2){50, 50}, player->rotation, WHITE);
-  LineNode *collisionLines = player->collisionLines;
-  while (collisionLines != NULL) {
-    DrawLineV(collisionLines->start, collisionLines->end, RED);
-    collisionLines = collisionLines->next;
-  }
+                 (Rectangle){player->position.x, player->position.y, 100, 100},
+                 (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
+  // LineNode *collisionLines = player->collisionLines;
+  // while (collisionLines != NULL) {
+  //   DrawLineV(collisionLines->start, collisionLines->end, RED);
+  //   collisionLines = collisionLines->next;
+  // }
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
                                SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
