@@ -203,6 +203,16 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
 }
 
 void MovePlayer(Player *player, Vector2 direction) {
+  if (player->position.x + direction.x < 0)
+    direction.x = player->position.x - direction.x;
+  if (player->position.x + direction.x > SCREEN_WIDTH)
+    direction.x = -SCREEN_WIDTH + player->position.x;
+
+  if (player->position.y + direction.y < 0)
+    direction.y = player->position.y - direction.y;
+  if (player->position.y + direction.y > SCREEN_HEIGHT)
+    direction.y = -SCREEN_HEIGHT + player->position.y;
+
   player->position.x += direction.x;
   player->position.y += direction.y;
 
