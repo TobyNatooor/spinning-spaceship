@@ -80,20 +80,20 @@ void Loop(void *loopArg_) {
     arg->isPaused = !arg->isPaused;
     printf("bool: %d\n", arg->isPaused);
   }
-  if (arg->isPaused)
-    return;
 
   switch (*display) {
   case StartScreen:
-    LoopStart(player, sections, display);
+    DrawStartScreen(player, sections, display);
     break;
   case GameScreen:
-    LoopGame(player, sections, display);
+    if (!arg->isPaused)
+      UpdateGame(player, sections, display);
+    DrawGameScreen(player, sections, display);
     break;
   }
 }
 
-void LoopStart(Player *player, SectionNode **sections, Display *display) {
+void DrawStartScreen(Player *player, SectionNode **sections, Display *display) {
   Rectangle startButton = {SCREEN_WIDTH * 0.1, 200, SCREEN_WIDTH * 0.8, 100};
   if (IsButtonClicked(startButton)) {
     *display = GameScreen;
@@ -112,7 +112,7 @@ void LoopStart(Player *player, SectionNode **sections, Display *display) {
   EndDrawing();
 }
 
-void LoopGame(Player *player, SectionNode **sections, Display *display) {
+void UpdateGame(Player *player, SectionNode **sections, Display *display) {
   if (!player->isDead) {
     float frameTime = GetFrameTime();
 
@@ -145,7 +145,9 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
       }
     }
   }
+}
 
+void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
   BeginDrawing();
 
   ClearBackground(DARKGRAY);
