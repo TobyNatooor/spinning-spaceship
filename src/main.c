@@ -36,21 +36,16 @@ int main(void) {
 }
 
 void InitNewGame(Player *player, SectionNode **sections) {
-  player->position.x = SCREEN_WIDTH / 2.0;
-  player->position.y = SCREEN_HEIGHT / 2.0;
+  player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0;
+  player->position.y = SCREEN_HEIGHT / 1.3 + player->texture.height / 2.0;
+  player->points[0] =
+      (Vector2){player->position.x - 30, player->position.y + 50};
+  player->points[1] = (Vector2){player->position.x, player->position.y - 50};
+  player->points[2] =
+      (Vector2){player->position.x + 30, player->position.y + 50};
   player->rotation = 0;
   player->isDead = false;
   player->score = 0;
-
-  while (player->collisionLines != NULL)
-    RemoveLine(&player->collisionLines);
-
-  Vector2 point1 = (Vector2){player->position.x - 30, player->position.y + 50};
-  Vector2 point2 = (Vector2){player->position.x, player->position.y - 50};
-  Vector2 point3 = (Vector2){player->position.x + 30, player->position.y + 50};
-  AddLineV(&player->collisionLines, point1, point2);
-  AddLineV(&player->collisionLines, point2, point3);
-  AddLineV(&player->collisionLines, point3, point1);
 
   while (*sections != NULL)
     RemoveSection(sections);
@@ -62,11 +57,13 @@ LoopArg *Setup(void) {
   Image playerImage = LoadImage("resources/spaceship.png");
   ImageResize(&playerImage, 100, 100);
   player->texture = LoadTextureFromImage(playerImage);
-  player->collisionLines = NULL;
+  player->position = (Vector2){0, 0};
+  player->points = malloc(3 * sizeof(Vector2));
 
   LoopArg *loopArg = malloc(sizeof(LoopArg));
   loopArg->player = player;
   loopArg->sections = NULL;
+  loopArg->isPaused = false;
 
   loopArg->display = StartScreen;
 
@@ -78,6 +75,13 @@ void Loop(void *loopArg_) {
   Display *display = &arg->display;
   Player *player = arg->player;
   SectionNode **sections = &arg->sections;
+
+  if (IsKeyPressed(KEY_SPACE)) {
+    arg->isPaused = !arg->isPaused;
+    printf("bool: %d\n", arg->isPaused);
+  }
+  if (arg->isPaused)
+    return;
 
   switch (*display) {
   case StartScreen:
@@ -114,31 +118,9 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
 
     player->score += frameTime;
 
-    player->rotation += frameTime;
-    float speed = 1.5;
-    Vector2 forwardDirection = {cos(player->rotation - PI / 2),
-                                sin(player->rotation - PI / 2)};
-    Vector2 rightDirection = {cos(player->rotation), sin(player->rotation)};
+    RotatePlayer(player);
 
-    Vector2 direction = {0, 0};
-    if (IsKeyDown(KEY_A)) {
-      direction.x -= rightDirection.x * speed;
-      direction.y -= rightDirection.y * speed;
-    }
-    if (IsKeyDown(KEY_D)) {
-      direction.x += rightDirection.x * speed;
-      direction.y += rightDirection.y * speed;
-    }
-    if (IsKeyDown(KEY_W)) {
-      direction.x += forwardDirection.x * speed;
-      direction.y += forwardDirection.y * speed;
-    }
-    if (IsKeyDown(KEY_S)) {
-      direction.x -= forwardDirection.x * speed;
-      direction.y -= forwardDirection.y * speed;
-    }
-
-    MovePlayer(player, direction);
+    MovePlayer(player);
 
     MoveSections(*sections, (Vector2){0, 500 * frameTime});
 
@@ -168,14 +150,16 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
 
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
-  DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
-                 (Rectangle){player->position.x, player->position.y, 100, 100},
-                 (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
-  // LineNode *collisionLines = player->collisionLines;
-  // while (collisionLines != NULL) {
-  //   DrawLineV(collisionLines->start, collisionLines->end, RED);
-  //   collisionLines = collisionLines->next;
-  // }
+  DrawTexturePro(
+      player->texture, (Rectangle){0, 0, 100, 100},
+      (Rectangle){player->position.x - 50, player->position.y - 50, 100, 100},
+      (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
+  Vector2 *points = player->points;
+  // printf("x: %f, y: %f\n", points->x, points->y);
+  for (int i = 0; i < 3; i++)
+    DrawCircleV(points[i], 5, RED);
+  // DrawLineV(points[i], points[(i + 1) % 3], RED);
+
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
                                SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
@@ -198,11 +182,52 @@ void LoopGame(Player *player, SectionNode **sections, Display *display) {
   } else {
     DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
   }
+  // DrawCircle(player->position.x + (cos(player->rotation) * 50),
+  //            player->position.y + (sin(player->rotation) * 50), 3, RED);
 
   EndDrawing();
 }
 
-void MovePlayer(Player *player, Vector2 direction) {
+void RotatePlayer(Player *player) {
+  player->rotation += GetFrameTime();
+
+  Vector2 *points = player->points;
+  for (int i = 0; i < 3; i++) {
+    float adjacent = player->position.x - points[i].x;
+    float opposite = player->position.y - points[i].y;
+    float hypotenuse = sqrt(pow(adjacent, 2) + pow(opposite, 2));
+    float angle = asin(opposite / hypotenuse);
+    // printf("angle: %f\n", angle);
+    points[i].x =
+        player->position.x + cos(player->rotation + angle) * hypotenuse;
+    points[i].y =
+        player->position.y + sin(player->rotation + angle) * hypotenuse;
+  }
+}
+
+void MovePlayer(Player *player) {
+  Vector2 forwardDirection = {cos(player->rotation - PI / 2),
+                              sin(player->rotation - PI / 2)};
+  Vector2 rightDirection = {cos(player->rotation), sin(player->rotation)};
+
+  float speed = 1.5;
+  Vector2 direction = {0, 0};
+  if (IsKeyDown(KEY_A)) {
+    direction.x -= rightDirection.x * speed;
+    direction.y -= rightDirection.y * speed;
+  }
+  if (IsKeyDown(KEY_D)) {
+    direction.x += rightDirection.x * speed;
+    direction.y += rightDirection.y * speed;
+  }
+  if (IsKeyDown(KEY_W)) {
+    direction.x += forwardDirection.x * speed;
+    direction.y += forwardDirection.y * speed;
+  }
+  if (IsKeyDown(KEY_S)) {
+    direction.x -= forwardDirection.x * speed;
+    direction.y -= forwardDirection.y * speed;
+  }
   if (player->position.x + direction.x < 0)
     direction.x = player->position.x - direction.x;
   if (player->position.x + direction.x > SCREEN_WIDTH)
@@ -216,13 +241,10 @@ void MovePlayer(Player *player, Vector2 direction) {
   player->position.x += direction.x;
   player->position.y += direction.y;
 
-  LineNode *collisionLines = player->collisionLines;
-  while (collisionLines != NULL) {
-    collisionLines->start.x += direction.x;
-    collisionLines->start.y += direction.y;
-    collisionLines->end.x += direction.x;
-    collisionLines->end.y += direction.y;
-    collisionLines = collisionLines->next;
+  Vector2 *points = player->points;
+  for (int i = 0; i < 3; i++) {
+    points[i].x += direction.x;
+    points[i].y += direction.y;
   }
 }
 
@@ -230,14 +252,14 @@ bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
   while (sections != NULL) {
     LineNode *wallList = sections->walls;
     while (wallList != NULL) {
-      LineNode *collisionLines = player->collisionLines;
-      while (collisionLines != NULL) {
-        if (CheckCollisionLines(wallList->start, wallList->end,
-                                collisionLines->start, collisionLines->end,
-                                NULL))
-          return true;
-        collisionLines = collisionLines->next;
-      }
+      // LineNode *collisionLines = player->collisionLines;
+      // while (collisionLines != NULL) {
+      //   if (CheckCollisionLines(wallList->start, wallList->end,
+      //                           collisionLines->start, collisionLines->end,
+      //                           NULL))
+      //     return true;
+      //   collisionLines = collisionLines->next;
+      // }
       wallList = wallList->next;
     }
     sections = sections->next;

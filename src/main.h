@@ -8,7 +8,7 @@ typedef enum Display {
 
 typedef struct Player {
   Texture2D texture;
-  LineNode *collisionLines;
+  Vector2 *points;
   Vector2 position;
   float rotation;
   float score;
@@ -19,6 +19,7 @@ typedef struct LoopArg {
   Display display;
   Player *player;
   SectionNode *sections;
+  bool isPaused;
 } LoopArg;
 
 LoopArg *Setup(void);
@@ -28,7 +29,8 @@ void LoopGame(Player *player, SectionNode **sections, Display *display);
 
 void InitNewGame(Player *player, SectionNode **sections);
 
-void MovePlayer(Player *player, Vector2 direction);
+void RotatePlayer(Player *player);
+void MovePlayer(Player *player);
 
 bool IsButtonClicked(Rectangle button);
 
