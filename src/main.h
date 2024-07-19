@@ -25,7 +25,7 @@ typedef struct LoopArg {
 LoopArg *Setup(void);
 void Loop(void *loopArg);
 void DrawStartScreen(Player *player, SectionNode **sections, Display *display);
-void UpdateGame(Player *player, SectionNode **sections, Display *display);
+void UpdateGame(Player *player, SectionNode **sections);
 void DrawGameScreen(Player *player, SectionNode **sections, Display *display);
 
 void InitNewGame(Player *player, SectionNode **sections);

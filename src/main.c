@@ -88,7 +88,7 @@ void Loop(void *loopArg_) {
     break;
   case GameScreen:
     if (!arg->isPaused)
-      UpdateGame(player, sections, display);
+      UpdateGame(player, sections);
     DrawGameScreen(player, sections, display);
     break;
   }
@@ -113,7 +113,7 @@ void DrawStartScreen(Player *player, SectionNode **sections, Display *display) {
   EndDrawing();
 }
 
-void UpdateGame(Player *player, SectionNode **sections, Display *display) {
+void UpdateGame(Player *player, SectionNode **sections) {
   if (player->isDead)
     return;
 
@@ -157,7 +157,6 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
   DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
                  (Rectangle){player->position.x, player->position.y, 100, 100},
                  (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
-  Vector2 *points = player->points;
 
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
@@ -180,6 +179,7 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
     DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
   }
 #if defined(DEBUG)
+  Vector2 *points = player->points;
   DrawCircle(player->position.x, player->position.y, 3, RED);
   for (int i = 0; i < 3; i++)
     DrawLineV(points[i], points[(i + 1) % 3], RED);
