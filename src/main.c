@@ -153,15 +153,12 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
 
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
-  DrawTexturePro(
-      player->texture, (Rectangle){0, 0, 100, 100},
-      (Rectangle){player->position.x - 50, player->position.y - 50, 100, 100},
-      (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
+  DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
+                 (Rectangle){player->position.x, player->position.y, 100, 100},
+                 (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
   Vector2 *points = player->points;
-  // printf("x: %f, y: %f\n", points->x, points->y);
   for (int i = 0; i < 3; i++)
-    DrawCircleV(points[i], 5, RED);
-  // DrawLineV(points[i], points[(i + 1) % 3], RED);
+    DrawLineV(points[i], points[(i + 1) % 3], RED);
 
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
@@ -185,8 +182,7 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
   } else {
     DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
   }
-  // DrawCircle(player->position.x + (cos(player->rotation) * 50),
-  //            player->position.y + (sin(player->rotation) * 50), 3, RED);
+  DrawCircle(player->position.x, player->position.y, 3, RED);
 
   EndDrawing();
 }
@@ -196,20 +192,12 @@ void RotatePlayer(Player *player) {
 
   Vector2 *points = player->points;
   for (int i = 0; i < 3; i++) {
-    // float adjacent = points[i].x - player->position.x;
-    // float opposite = points[i].y - player->position.x;
     float adjacent = points[i].x - player->position.x;
     float opposite = points[i].y - player->position.y;
-    float hypotenuse = sqrt(pow(adjacent, 2) + pow(opposite, 2));
-    float angle = asin(opposite / hypotenuse);
-    printf("point: %d, adj: %f, opp: %f\n", i, adjacent, opposite);
-
-    // points[i].x = player->position.x + cos(player->rotation) * hypotenuse;
-    // points[i].y = player->position.y + sin(player->rotation) * hypotenuse;
-
-    points[i].x = player->position.x +adjacent * cos(frameTime) - opposite * sin(frameTime);
-    points[i].y = player->position.y +adjacent * sin(frameTime) + opposite * cos(frameTime);
-    printf("point: %d, x: %f, y: %f\n", i, points[i].x, points[i].y);
+    points[i].x = player->position.x + adjacent * cos(frameTime) -
+                  opposite * sin(frameTime);
+    points[i].y = player->position.y + adjacent * sin(frameTime) +
+                  opposite * cos(frameTime);
   }
   player->rotation += frameTime;
 }
@@ -261,14 +249,12 @@ bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
   while (sections != NULL) {
     LineNode *wallList = sections->walls;
     while (wallList != NULL) {
-      // LineNode *collisionLines = player->collisionLines;
-      // while (collisionLines != NULL) {
-      //   if (CheckCollisionLines(wallList->start, wallList->end,
-      //                           collisionLines->start, collisionLines->end,
-      //                           NULL))
-      //     return true;
-      //   collisionLines = collisionLines->next;
-      // }
+      Vector2 *points = player->points;
+      for (int i = 0; i < 3; i++) {
+        if (CheckCollisionLines(wallList->start, wallList->end, points[i],
+                                points[(i + 1) % 3], NULL))
+          return true;
+      }
       wallList = wallList->next;
     }
     sections = sections->next;
