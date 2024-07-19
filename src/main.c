@@ -113,36 +113,37 @@ void DrawStartScreen(Player *player, SectionNode **sections, Display *display) {
 }
 
 void UpdateGame(Player *player, SectionNode **sections, Display *display) {
-  if (!player->isDead) {
-    float frameTime = GetFrameTime();
+  if (player->isDead)
+    return;
 
-    player->score += frameTime;
+  float frameTime = GetFrameTime();
 
-    RotatePlayer(player);
+  player->score += frameTime;
 
-    MovePlayer(player);
+  RotatePlayer(player);
 
-    MoveSections(*sections, (Vector2){0, 500 * frameTime});
+  MovePlayer(player);
 
-    RemoveSectionIfOutOfScreen(sections);
+  MoveSections(*sections, (Vector2){0, 500 * frameTime});
 
-    if (IsPlayerCollidingWalls(player, *sections)) {
-      player->isDead = true;
-      printf("player hit wall\n");
-    }
+  RemoveSectionIfOutOfScreen(sections);
 
-    if (CountSections(*sections) <= 2) {
-      switch (rand() % 3) {
-      case 0:
-        AddStraightSection(sections);
-        break;
-      case 1:
-        AddCurveLeftSection(sections);
-        break;
-      case 2:
-        AddCurveRightSection(sections);
-        break;
-      }
+  if (IsPlayerCollidingWalls(player, *sections)) {
+    player->isDead = true;
+    printf("player hit wall\n");
+  }
+
+  if (CountSections(*sections) <= 2) {
+    switch (rand() % 3) {
+    case 0:
+      AddStraightSection(sections);
+      break;
+    case 1:
+      AddCurveLeftSection(sections);
+      break;
+    case 2:
+      AddCurveRightSection(sections);
+      break;
     }
   }
 }
@@ -191,20 +192,26 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
 }
 
 void RotatePlayer(Player *player) {
-  player->rotation += GetFrameTime();
+  float frameTime = GetFrameTime();
 
   Vector2 *points = player->points;
   for (int i = 0; i < 3; i++) {
-    float adjacent = player->position.x - points[i].x;
-    float opposite = player->position.y - points[i].y;
+    // float adjacent = points[i].x - player->position.x;
+    // float opposite = points[i].y - player->position.x;
+    float adjacent = points[i].x - player->position.x;
+    float opposite = points[i].y - player->position.y;
     float hypotenuse = sqrt(pow(adjacent, 2) + pow(opposite, 2));
     float angle = asin(opposite / hypotenuse);
-    // printf("angle: %f\n", angle);
-    points[i].x =
-        player->position.x + cos(player->rotation + angle) * hypotenuse;
-    points[i].y =
-        player->position.y + sin(player->rotation + angle) * hypotenuse;
+    printf("point: %d, adj: %f, opp: %f\n", i, adjacent, opposite);
+
+    // points[i].x = player->position.x + cos(player->rotation) * hypotenuse;
+    // points[i].y = player->position.y + sin(player->rotation) * hypotenuse;
+
+    points[i].x = player->position.x +adjacent * cos(frameTime) - opposite * sin(frameTime);
+    points[i].y = player->position.y +adjacent * sin(frameTime) + opposite * cos(frameTime);
+    printf("point: %d, x: %f, y: %f\n", i, points[i].x, points[i].y);
   }
+  player->rotation += frameTime;
 }
 
 void MovePlayer(Player *player) {
