@@ -1,5 +1,6 @@
 
 PLATFORM	?= PLATFORM_WEB
+BUILD_MODE	?= RELEASE
 FILES		 = main.c line.c section.c
 TEST_FILES	 = test.c line.c section.c
 CC		 = gcc
@@ -8,6 +9,21 @@ INCLUDE_PATHS	:= -Iinclude
 
 ifeq ($(PLATFORM), PLATFORM_WEB)
     CC = emcc
+endif
+
+ifeq ($(RAYLIB_BUILD_MODE),RELEASE)
+    ifeq ($(PLATFORM),PLATFORM_WEB)
+        CFLAGS += -Os
+    endif
+    ifeq ($(PLATFORM),PLATFORM_DESKTOP)
+        CFLAGS += -O1
+    endif
+    ifeq ($(PLATFORM),PLATFORM_ANDROID)
+        CFLAGS += -O2
+    endif
+endif
+ifeq ($(BUILD_MODE), DEBUG)
+    CFLAGS += -g -D DEBUG
 endif
 
 all: $(FILES)

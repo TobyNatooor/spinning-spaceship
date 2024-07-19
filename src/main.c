@@ -36,7 +36,8 @@ int main(void) {
 }
 
 void InitNewGame(Player *player, SectionNode **sections) {
-  player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0;
+  player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0 -
+                       player->texture.width / 2.0;
   player->position.y = SCREEN_HEIGHT / 1.3 + player->texture.height / 2.0;
   player->points[0] =
       (Vector2){player->position.x - 30, player->position.y + 50};
@@ -157,8 +158,6 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
                  (Rectangle){player->position.x, player->position.y, 100, 100},
                  (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
   Vector2 *points = player->points;
-  for (int i = 0; i < 3; i++)
-    DrawLineV(points[i], points[(i + 1) % 3], RED);
 
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
@@ -174,16 +173,17 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
     if (IsButtonClicked(mainMenuButton)) {
       *display = StartScreen;
     }
-  }
-  if (player->isDead) {
     const char *text = TextFormat("Score: %.2f", player->score);
     int textWidth = MeasureText(text, 30);
     DrawText(text, SCREEN_WIDTH / 2.0 - textWidth / 2.0, 160, 30, WHITE);
   } else {
     DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
   }
+#if defined(DEBUG)
   DrawCircle(player->position.x, player->position.y, 3, RED);
-
+  for (int i = 0; i < 3; i++)
+    DrawLineV(points[i], points[(i + 1) % 3], RED);
+#endif
   EndDrawing();
 }
 
