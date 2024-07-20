@@ -84,40 +84,28 @@ void InitNewGame(Player *player, SectionNode **sections) {
   player->isDead = false;
   player->score = 0;
 
-  player->points[0] =
-      (Vector2){player->position.x - 10, player->position.y - 25};
+  player->points[0] = (Vector2){player->position.x, player->position.y - 50};
   player->points[1] =
-      (Vector2){player->position.x - 10, player->position.y - 35};
-  player->points[2] = (Vector2){player->position.x, player->position.y - 50};
+      (Vector2){player->position.x - 15, player->position.y - 30};
+  player->points[2] =
+      (Vector2){player->position.x - 18, player->position.y + 15};
   player->points[3] =
-      (Vector2){player->position.x + 10, player->position.y - 35};
-  player->points[4] = (Vector2){player->position.x + 10, player->position.y};
-  player->points[5] = (Vector2){player->position.x - 10, player->position.y};
-  player->points[6] =
-      (Vector2){player->position.x - 10, player->position.y - 25};
+      (Vector2){player->position.x - 28, player->position.y + 28};
+  player->points[4] =
+      (Vector2){player->position.x - 27, player->position.y + 50};
+  player->points[5] =
+      (Vector2){player->position.x - 12, player->position.y + 35};
+  player->points[6] = (Vector2){player->position.x, player->position.y + 50};
   player->points[7] =
-      (Vector2){player->position.x - 45, player->position.y + 30};
+      (Vector2){player->position.x + 12, player->position.y + 35};
   player->points[8] =
-      (Vector2){player->position.x - 25, player->position.y + 30};
+      (Vector2){player->position.x + 27, player->position.y + 50};
   player->points[9] =
-      (Vector2){player->position.x - 25, player->position.y + 35};
+      (Vector2){player->position.x + 28, player->position.y + 28};
   player->points[10] =
-      (Vector2){player->position.x - 10, player->position.y + 35};
+      (Vector2){player->position.x + 18, player->position.y + 15};
   player->points[11] =
-      (Vector2){player->position.x - 10, player->position.y + 30};
-
-  player->points[12] =
-      (Vector2){player->position.x + 10, player->position.y + 30};
-  player->points[13] =
-      (Vector2){player->position.x + 10, player->position.y + 35};
-  player->points[14] =
-      (Vector2){player->position.x + 25, player->position.y + 35};
-  player->points[15] =
-      (Vector2){player->position.x + 25, player->position.y + 30};
-  player->points[16] =
-      (Vector2){player->position.x + 45, player->position.y + 30};
-  player->points[17] =
-      (Vector2){player->position.x + 10, player->position.y - 25};
+      (Vector2){player->position.x + 15, player->position.y - 30};
 
   while (*sections != NULL)
     RemoveSection(sections);
@@ -190,10 +178,9 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
 
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
-  // DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
-  //                (Rectangle){player->position.x, player->position.y, 100,
-  //                100}, (Vector2){50, 50}, player->rotation * (180 / PI),
-  //                WHITE);
+  DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
+                 (Rectangle){player->position.x, player->position.y, 100, 100},
+                 (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
 
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
@@ -218,8 +205,8 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
 #if defined(DEBUG)
   Vector2 *points = player->points;
   DrawCircle(player->position.x, player->position.y, 2, RED);
-  for (int i = 1; i < PLAYER_POINTS; i++)
-    DrawLineV(points[i], points[(i - 1) % PLAYER_POINTS], WHITE);
+  for (int i = 0; i < PLAYER_POINTS; i++)
+    DrawLineV(points[i], points[(i + 1) % PLAYER_POINTS], RED);
 #endif
   EndDrawing();
 }
