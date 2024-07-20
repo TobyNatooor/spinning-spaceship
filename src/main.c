@@ -35,24 +35,6 @@ int main(void) {
   return 0;
 }
 
-void InitNewGame(Player *player, SectionNode **sections) {
-  player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0 -
-                       player->texture.width / 2.0;
-  player->position.y = SCREEN_HEIGHT / 1.3 + player->texture.height / 2.0;
-  player->points[0] =
-      (Vector2){player->position.x - 30, player->position.y + 50};
-  player->points[1] = (Vector2){player->position.x, player->position.y - 50};
-  player->points[2] =
-      (Vector2){player->position.x + 30, player->position.y + 50};
-  player->rotation = 0;
-  player->isDead = false;
-  player->score = 0;
-
-  while (*sections != NULL)
-    RemoveSection(sections);
-  AddStraightSection(sections);
-}
-
 LoopArg *Setup(void) {
   Player *player = malloc(sizeof(Player));
   Image playerImage = LoadImage("resources/spaceship.png");
@@ -92,6 +74,24 @@ void Loop(void *loopArg_) {
     DrawGameScreen(player, sections, display);
     break;
   }
+}
+
+void InitNewGame(Player *player, SectionNode **sections) {
+  player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0 -
+                       player->texture.width / 2.0;
+  player->position.y = SCREEN_HEIGHT / 1.3 + player->texture.height / 2.0;
+  player->points[0] =
+      (Vector2){player->position.x - 30, player->position.y + 50};
+  player->points[1] = (Vector2){player->position.x, player->position.y - 50};
+  player->points[2] =
+      (Vector2){player->position.x + 30, player->position.y + 50};
+  player->rotation = 0;
+  player->isDead = false;
+  player->score = 0;
+
+  while (*sections != NULL)
+    RemoveSection(sections);
+  AddStraightSection(sections);
 }
 
 void DrawStartScreen(Player *player, SectionNode **sections, Display *display) {

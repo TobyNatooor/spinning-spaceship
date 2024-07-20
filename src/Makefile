@@ -1,6 +1,6 @@
 
 PLATFORM	?= PLATFORM_WEB
-BUILD_MODE	?= RELEASE
+BUILD_MODE	?= DEBUG
 FILES		 = main.c line.c section.c
 TEST_FILES	 = test.c line.c section.c
 CC		 = gcc
