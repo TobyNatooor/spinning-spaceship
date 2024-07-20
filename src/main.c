@@ -212,18 +212,18 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
 }
 
 void RotatePlayer(Player *player) {
-  float frameTime = GetFrameTime();
+  float spinRate = GetFrameTime() + player->score / 10000;
 
   Vector2 *points = player->points;
   for (int i = 0; i < PLAYER_POINTS; i++) {
     float adjacent = points[i].x - player->position.x;
     float opposite = points[i].y - player->position.y;
-    points[i].x = player->position.x + adjacent * cos(frameTime) -
-                  opposite * sin(frameTime);
-    points[i].y = player->position.y + adjacent * sin(frameTime) +
-                  opposite * cos(frameTime);
+    points[i].x = player->position.x + adjacent * cos(spinRate) -
+                  opposite * sin(spinRate);
+    points[i].y = player->position.y + adjacent * sin(spinRate) +
+                  opposite * cos(spinRate);
   }
-  player->rotation += frameTime;
+  player->rotation += spinRate;
 }
 
 void MovePlayer(Player *player) {
