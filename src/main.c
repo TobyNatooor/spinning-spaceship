@@ -40,10 +40,20 @@ LoopArg *Setup(void) {
   Image playerImage = LoadImage("resources/spaceship.png");
   ImageResize(&playerImage, 100, 100);
   player->texture = LoadTextureFromImage(playerImage);
+  UnloadImage(playerImage);
   player->position = (Vector2){0, 0};
   player->points = malloc(PLAYER_POINTS * sizeof(Vector2));
 
   LoopArg *loopArg = malloc(sizeof(LoopArg));
+  Image background = LoadImage("resources/starry_night.png");
+  // ImageResize(&background, SCREEN_WIDTH, SCREEN_HEIGHT;
+  loopArg->background = LoadTexture("resources/starry_night.png");
+  if (IsTextureReady(loopArg->background))
+    printf("test\n");
+  else
+    printf("123\n");
+  UnloadImage(background);
+  
   loopArg->player = player;
   loopArg->sections = NULL;
   loopArg->isPaused = false;
@@ -71,7 +81,7 @@ void Loop(void *loopArg_) {
   case GameScreen:
     if (!arg->isPaused)
       UpdateGame(player, sections);
-    DrawGameScreen(player, sections, display);
+    DrawGameScreen(player, sections, display, arg->background);
     break;
   }
 }
@@ -165,10 +175,11 @@ void UpdateGame(Player *player, SectionNode **sections) {
   }
 }
 
-void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
+void DrawGameScreen(Player *player, SectionNode **sections, Display *display, Texture2D background) {
   BeginDrawing();
 
   ClearBackground(DARKGRAY);
+  DrawTexture(background, 0, 0, WHITE);
   DrawSections(*sections);
   DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
                  (Rectangle){player->position.x, player->position.y, 100, 100},
