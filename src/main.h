@@ -24,22 +24,21 @@ typedef struct LoopArg {
 
 LoopArg *Setup(void);
 void Loop(void *loopArg);
-void DrawStartScreen(Player *player, SectionNode **sections, Display *display);
-void UpdateGame(Player *player, SectionNode **sections);
-void DrawGameScreen(Player *player, SectionNode **sections, Display *display);
-
 void InitNewGame(Player *player, SectionNode **sections);
+void UpdateGame(Player *player, SectionNode **sections);
 
-void RotatePlayer(Player *player);
-void MovePlayer(Player *player);
-
+// Input functions
 bool IsButtonClicked(Rectangle button);
 
 // Draw functions
+void DrawStartScreen(Player *player, SectionNode **sections, Display *display);
+void DrawGameScreen(Player *player, SectionNode **sections, Display *display);
 void DrawLines(LineNode *lines);
 void DrawSections(SectionNode *sections);
 void DrawButton(Rectangle rect, const char *text, int font, Color color,
                 float borderWidth, Color borderColor);
 
-// Collision functions
+// Player functions
 bool IsPlayerCollidingWalls(Player *player, SectionNode *sections);
+void RotatePlayer(Player *player);
+void MovePlayer(Player *player);

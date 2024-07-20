@@ -59,10 +59,10 @@ void Loop(void *loopArg_) {
   Player *player = arg->player;
   SectionNode **sections = &arg->sections;
 
-  if (IsKeyPressed(KEY_SPACE)) {
+  if (IsKeyPressed(KEY_SPACE))
     arg->isPaused = !arg->isPaused;
-    printf("bool: %d\n", arg->isPaused);
-  }
+  if (IsKeyPressed(KEY_R) && player->isDead)
+    InitNewGame(player, sections);
 
   switch (*display) {
   case StartScreen:
@@ -147,10 +147,8 @@ void UpdateGame(Player *player, SectionNode **sections) {
 
   RemoveSectionIfOutOfScreen(sections);
 
-  if (IsPlayerCollidingWalls(player, *sections)) {
+  if (IsPlayerCollidingWalls(player, *sections))
     player->isDead = true;
-    printf("player hit wall\n");
-  }
 
   if (CountSections(*sections) <= 2) {
     switch (rand() % 3) {
@@ -168,12 +166,6 @@ void UpdateGame(Player *player, SectionNode **sections) {
 }
 
 void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
-  if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-    Vector2 mousePosition = GetMousePosition();
-    printf("player->position.x %f, player->position.y %f\n",
-           mousePosition.x - player->position.x,
-           mousePosition.y - player->position.y);
-  }
   BeginDrawing();
 
   ClearBackground(DARKGRAY);
@@ -185,20 +177,19 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
                                SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
-    DrawButton(restartButton, "Restart Game", 20, DARKGRAY, 2, WHITE);
-    if (IsButtonClicked(restartButton)) {
-      InitNewGame(player, sections);
-      printf("restart button clicked\n");
-    }
     Rectangle mainMenuButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.45,
                                 SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
+    DrawButton(restartButton, "Restart Game", 20, DARKGRAY, 2, WHITE);
     DrawButton(mainMenuButton, "Main Menu", 20, DARKGRAY, 2, WHITE);
-    if (IsButtonClicked(mainMenuButton)) {
+    if (IsButtonClicked(restartButton))
+      InitNewGame(player, sections);
+    if (IsButtonClicked(mainMenuButton))
       *display = StartScreen;
-    }
+
     const char *text = TextFormat("Score: %.2f", player->score);
     int textWidth = MeasureText(text, 30);
     DrawText(text, SCREEN_WIDTH / 2.0 - textWidth / 2.0, 160, 30, WHITE);
+
   } else {
     DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
   }
@@ -213,6 +204,7 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
 
 void RotatePlayer(Player *player) {
   float spinRate = GetFrameTime() + player->score / 10000;
+  player->rotation += spinRate;
 
   Vector2 *points = player->points;
   for (int i = 0; i < PLAYER_POINTS; i++) {
@@ -223,7 +215,6 @@ void RotatePlayer(Player *player) {
     points[i].y = player->position.y + adjacent * sin(spinRate) +
                   opposite * cos(spinRate);
   }
-  player->rotation += spinRate;
 }
 
 void MovePlayer(Player *player) {
@@ -249,6 +240,7 @@ void MovePlayer(Player *player) {
     direction.x -= forwardDirection.x * speed;
     direction.y -= forwardDirection.y * speed;
   }
+
   if (player->position.x + direction.x < 0)
     direction.x = player->position.x - direction.x;
   if (player->position.x + direction.x > SCREEN_WIDTH)
