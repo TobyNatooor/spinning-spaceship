@@ -1,2 +1,3 @@
 #define SCREEN_HEIGHT 750
 #define SCREEN_WIDTH 550
+#define PLAYER_POINTS 18

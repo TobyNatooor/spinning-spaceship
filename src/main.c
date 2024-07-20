@@ -41,7 +41,7 @@ LoopArg *Setup(void) {
   ImageResize(&playerImage, 100, 100);
   player->texture = LoadTextureFromImage(playerImage);
   player->position = (Vector2){0, 0};
-  player->points = malloc(3 * sizeof(Vector2));
+  player->points = malloc(PLAYER_POINTS * sizeof(Vector2));
 
   LoopArg *loopArg = malloc(sizeof(LoopArg));
   loopArg->player = player;
@@ -80,14 +80,44 @@ void InitNewGame(Player *player, SectionNode **sections) {
   player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0 -
                        player->texture.width / 2.0;
   player->position.y = SCREEN_HEIGHT / 1.3 + player->texture.height / 2.0;
-  player->points[0] =
-      (Vector2){player->position.x - 30, player->position.y + 50};
-  player->points[1] = (Vector2){player->position.x, player->position.y - 50};
-  player->points[2] =
-      (Vector2){player->position.x + 30, player->position.y + 50};
   player->rotation = 0;
   player->isDead = false;
   player->score = 0;
+
+  player->points[0] =
+      (Vector2){player->position.x - 10, player->position.y - 25};
+  player->points[1] =
+      (Vector2){player->position.x - 10, player->position.y - 35};
+  player->points[2] = (Vector2){player->position.x, player->position.y - 50};
+  player->points[3] =
+      (Vector2){player->position.x + 10, player->position.y - 35};
+  player->points[4] = (Vector2){player->position.x + 10, player->position.y};
+  player->points[5] = (Vector2){player->position.x - 10, player->position.y};
+  player->points[6] =
+      (Vector2){player->position.x - 10, player->position.y - 25};
+  player->points[7] =
+      (Vector2){player->position.x - 45, player->position.y + 30};
+  player->points[8] =
+      (Vector2){player->position.x - 25, player->position.y + 30};
+  player->points[9] =
+      (Vector2){player->position.x - 25, player->position.y + 35};
+  player->points[10] =
+      (Vector2){player->position.x - 10, player->position.y + 35};
+  player->points[11] =
+      (Vector2){player->position.x - 10, player->position.y + 30};
+
+  player->points[12] =
+      (Vector2){player->position.x + 10, player->position.y + 30};
+  player->points[13] =
+      (Vector2){player->position.x + 10, player->position.y + 35};
+  player->points[14] =
+      (Vector2){player->position.x + 25, player->position.y + 35};
+  player->points[15] =
+      (Vector2){player->position.x + 25, player->position.y + 30};
+  player->points[16] =
+      (Vector2){player->position.x + 45, player->position.y + 30};
+  player->points[17] =
+      (Vector2){player->position.x + 10, player->position.y - 25};
 
   while (*sections != NULL)
     RemoveSection(sections);
@@ -150,13 +180,20 @@ void UpdateGame(Player *player, SectionNode **sections) {
 }
 
 void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
+  if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    Vector2 mousePosition = GetMousePosition();
+    printf("player->position.x %f, player->position.y %f\n",
+           mousePosition.x - player->position.x,
+           mousePosition.y - player->position.y);
+  }
   BeginDrawing();
 
   ClearBackground(DARKGRAY);
   DrawSections(*sections);
-  DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
-                 (Rectangle){player->position.x, player->position.y, 100, 100},
-                 (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
+  // DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
+  //                (Rectangle){player->position.x, player->position.y, 100,
+  //                100}, (Vector2){50, 50}, player->rotation * (180 / PI),
+  //                WHITE);
 
   if (player->isDead) {
     Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
@@ -180,9 +217,9 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display) {
   }
 #if defined(DEBUG)
   Vector2 *points = player->points;
-  DrawCircle(player->position.x, player->position.y, 3, RED);
-  for (int i = 0; i < 3; i++)
-    DrawLineV(points[i], points[(i + 1) % 3], RED);
+  DrawCircle(player->position.x, player->position.y, 2, RED);
+  for (int i = 1; i < PLAYER_POINTS; i++)
+    DrawLineV(points[i], points[(i - 1) % PLAYER_POINTS], WHITE);
 #endif
   EndDrawing();
 }
@@ -191,7 +228,7 @@ void RotatePlayer(Player *player) {
   float frameTime = GetFrameTime();
 
   Vector2 *points = player->points;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < PLAYER_POINTS; i++) {
     float adjacent = points[i].x - player->position.x;
     float opposite = points[i].y - player->position.y;
     points[i].x = player->position.x + adjacent * cos(frameTime) -
@@ -239,7 +276,7 @@ void MovePlayer(Player *player) {
   player->position.y += direction.y;
 
   Vector2 *points = player->points;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < PLAYER_POINTS; i++) {
     points[i].x += direction.x;
     points[i].y += direction.y;
   }
@@ -250,9 +287,9 @@ bool IsPlayerCollidingWalls(Player *player, SectionNode *sections) {
     LineNode *wallList = sections->walls;
     while (wallList != NULL) {
       Vector2 *points = player->points;
-      for (int i = 0; i < 3; i++) {
+      for (int i = 0; i < PLAYER_POINTS; i++) {
         if (CheckCollisionLines(wallList->start, wallList->end, points[i],
-                                points[(i + 1) % 3], NULL))
+                                points[(i + 1) % PLAYER_POINTS], NULL))
           return true;
       }
       wallList = wallList->next;
