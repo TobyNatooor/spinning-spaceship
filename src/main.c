@@ -65,8 +65,10 @@ void Loop(void *loopArg_) {
 
   if (IsKeyPressed(KEY_SPACE))
     arg->isPaused = !arg->isPaused;
-  if (IsKeyPressed(KEY_R) && player->isDead)
+  if (IsKeyPressed(KEY_R) && player->isDead) {
+    *display = GameScreen;
     InitNewGame(player, sections);
+  }
 
   switch (*display) {
   case StartScreen:
@@ -77,6 +79,8 @@ void Loop(void *loopArg_) {
       UpdateGame(player, sections);
     DrawGameScreen(player, sections, display, background);
     break;
+  case EndScreen:
+    DrawEndScreen(player, sections, display, background);
+    break;
   }
 }
-

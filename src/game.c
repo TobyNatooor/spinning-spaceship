@@ -58,6 +58,39 @@ void DrawStartScreen(Player *player, SectionNode **sections, Display *display,
   EndDrawing();
 }
 
+void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
+                    Texture2D background) {
+  BeginDrawing();
+  DrawGame(player, sections, display, background);
+  DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
+  EndDrawing();
+}
+
+void DrawEndScreen(Player *player, SectionNode **sections, Display *display,
+                   Texture2D background) {
+  BeginDrawing();
+  DrawGame(player, sections, display, background);
+  Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
+                             SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
+  Rectangle mainMenuButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.45,
+                              SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
+  DrawButton(restartButton, "Restart Game", 20, DARKGRAY, 2, WHITE);
+  DrawButton(mainMenuButton, "Main Menu", 20, DARKGRAY, 2, WHITE);
+  if (IsButtonClicked(restartButton)) {
+    *display = GameScreen;
+    InitNewGame(player, sections);
+  }
+  if (IsButtonClicked(mainMenuButton)) {
+    *display = StartScreen;
+    InitNewGame(player, sections);
+  }
+
+  const char *text = TextFormat("Score: %.2f", player->score);
+  int textWidth = MeasureText(text, 30);
+  DrawText(text, SCREEN_WIDTH / 2.0 - textWidth / 2.0, 160, 30, WHITE);
+  EndDrawing();
+}
+
 void UpdateGame(Player *player, SectionNode **sections) {
   if (player->isDead)
     return;
@@ -92,15 +125,11 @@ void UpdateGame(Player *player, SectionNode **sections) {
   }
 }
 
-void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
-                    Texture2D background) {
-  BeginDrawing();
-  DrawGame(player, sections, display, background);
-  EndDrawing();
-}
-
 void DrawGame(Player *player, SectionNode **sections, Display *display,
               Texture2D background) {
+  if (player->isDead)
+    *display = EndScreen;
+
   ClearBackground(DARKGRAY);
 
   int bgHeightX2 = background.height * 2;
@@ -116,27 +145,6 @@ void DrawGame(Player *player, SectionNode **sections, Display *display,
                  (Rectangle){player->position.x, player->position.y, 100, 100},
                  (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
 
-  if (player->isDead) {
-    Rectangle restartButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.3,
-                               SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
-    Rectangle mainMenuButton = {SCREEN_WIDTH * 0.1, SCREEN_HEIGHT * 0.45,
-                                SCREEN_WIDTH * 0.8, SCREEN_HEIGHT * 0.1};
-    DrawButton(restartButton, "Restart Game", 20, DARKGRAY, 2, WHITE);
-    DrawButton(mainMenuButton, "Main Menu", 20, DARKGRAY, 2, WHITE);
-    if (IsButtonClicked(restartButton))
-      InitNewGame(player, sections);
-    if (IsButtonClicked(mainMenuButton)) {
-      *display = StartScreen;
-      InitNewGame(player, sections);
-    }
-
-    const char *text = TextFormat("Score: %.2f", player->score);
-    int textWidth = MeasureText(text, 30);
-    DrawText(text, SCREEN_WIDTH / 2.0 - textWidth / 2.0, 160, 30, WHITE);
-
-  } else if (*display == GameScreen) {
-    DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
-  }
 #if defined(DEBUG)
   Vector2 *points = player->points;
   DrawCircle(player->position.x, player->position.y, 2, RED);
@@ -178,4 +186,3 @@ bool IsButtonClicked(Rectangle button) {
   }
   return false;
 }
-

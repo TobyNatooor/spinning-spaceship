@@ -3,6 +3,7 @@
 typedef enum Display {
   StartScreen,
   GameScreen,
+  EndScreen,
 } Display;
 
 // Input functions
@@ -13,6 +14,8 @@ void DrawStartScreen(Player *player, SectionNode **sections, Display *display,
                      Texture2D background);
 void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
                     Texture2D background);
+void DrawEndScreen(Player *player, SectionNode **sections, Display *display,
+                   Texture2D background);
 void DrawGame(Player *player, SectionNode **sections, Display *display,
               Texture2D background);
 void DrawLines(LineNode *lines);
