@@ -55,6 +55,8 @@ LoopArg *Setup(void) {
 
   loopArg->display = StartScreen;
 
+  InitNewGame(player, &loopArg->sections);
+
   return loopArg;
 }
 
@@ -63,6 +65,7 @@ void Loop(void *loopArg_) {
   Display *display = &arg->display;
   Player *player = arg->player;
   SectionNode **sections = &arg->sections;
+  Texture2D background = arg->background;
 
   if (IsKeyPressed(KEY_SPACE))
     arg->isPaused = !arg->isPaused;
@@ -71,12 +74,12 @@ void Loop(void *loopArg_) {
 
   switch (*display) {
   case StartScreen:
-    DrawStartScreen(player, sections, display);
+    DrawStartScreen(player, sections, display, background);
     break;
   case GameScreen:
     if (!arg->isPaused)
       UpdateGame(player, sections);
-    DrawGameScreen(player, sections, display, arg->background);
+    DrawGameScreen(player, sections, display, background);
     break;
   }
 }
@@ -117,14 +120,17 @@ void InitNewGame(Player *player, SectionNode **sections) {
   AddStraightSection(sections);
 }
 
-void DrawStartScreen(Player *player, SectionNode **sections, Display *display) {
+void DrawStartScreen(Player *player, SectionNode **sections, Display *display,
+                     Texture2D background) {
   Rectangle startButton = {SCREEN_WIDTH * 0.1, 200, SCREEN_WIDTH * 0.8, 100};
+
   if (IsButtonClicked(startButton)) {
     *display = GameScreen;
     InitNewGame(player, sections);
   }
 
   BeginDrawing();
+  DrawGame(player, sections, display, background);
 
   ClearBackground(DARKGRAY);
 
@@ -173,14 +179,23 @@ void UpdateGame(Player *player, SectionNode **sections) {
 void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
                     Texture2D background) {
   BeginDrawing();
+  DrawGame(player, sections, display, background);
+  EndDrawing();
+}
 
+void DrawGame(Player *player, SectionNode **sections, Display *display,
+              Texture2D background) {
   ClearBackground(DARKGRAY);
-  // TODO: stop textures from moving after the player has died
-  float y1 = ((int)(100 * GetTime() + SCREEN_HEIGHT) % (background.height * 2)) - background.height;
-  float y2 = ((int)(100 * GetTime()) % (background.height * 2)) - background.height * 2 + SCREEN_HEIGHT;
+
+  int bgHeightX2 = background.height * 2;
+  int timeX100 = GetTime() * 100;
+  float y1 = ((timeX100 + SCREEN_HEIGHT) % bgHeightX2) - background.height;
+  float y2 = ((timeX100) % bgHeightX2) - bgHeightX2 + SCREEN_HEIGHT;
   DrawTexture(background, 0, y1, WHITE);
   DrawTexture(background, 0, y2, WHITE);
+
   DrawSections(*sections);
+
   DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
                  (Rectangle){player->position.x, player->position.y, 100, 100},
                  (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
@@ -194,14 +209,16 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
     DrawButton(mainMenuButton, "Main Menu", 20, DARKGRAY, 2, WHITE);
     if (IsButtonClicked(restartButton))
       InitNewGame(player, sections);
-    if (IsButtonClicked(mainMenuButton))
+    if (IsButtonClicked(mainMenuButton)) {
       *display = StartScreen;
+      InitNewGame(player, sections);
+    }
 
     const char *text = TextFormat("Score: %.2f", player->score);
     int textWidth = MeasureText(text, 30);
     DrawText(text, SCREEN_WIDTH / 2.0 - textWidth / 2.0, 160, 30, WHITE);
 
-  } else {
+  } else if (*display == GameScreen) {
     DrawText(TextFormat("Score: %.2f", player->score), 10, 10, 18, WHITE);
   }
 #if defined(DEBUG)
@@ -210,7 +227,6 @@ void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
   for (int i = 0; i < PLAYER_POINTS; i++)
     DrawLineV(points[i], points[(i + 1) % PLAYER_POINTS], RED);
 #endif
-  EndDrawing();
 }
 
 void RotatePlayer(Player *player) {

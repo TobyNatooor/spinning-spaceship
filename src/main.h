@@ -32,8 +32,12 @@ void UpdateGame(Player *player, SectionNode **sections);
 bool IsButtonClicked(Rectangle button);
 
 // Draw functions
-void DrawStartScreen(Player *player, SectionNode **sections, Display *display);
-void DrawGameScreen(Player *player, SectionNode **sections, Display *display, Texture2D background);
+void DrawStartScreen(Player *player, SectionNode **sections, Display *display,
+                     Texture2D background);
+void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
+                    Texture2D background);
+void DrawGame(Player *player, SectionNode **sections, Display *display,
+              Texture2D background);
 void DrawLines(LineNode *lines);
 void DrawSections(SectionNode *sections);
 void DrawButton(Rectangle rect, const char *text, int font, Color color,
