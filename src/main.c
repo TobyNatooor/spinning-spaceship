@@ -63,8 +63,8 @@ void Loop(void *loopArg_) {
   SectionNode **sections = &arg->sections;
   Texture2D background = arg->background;
 
-  if (IsKeyPressed(KEY_SPACE))
-    arg->isPaused = !arg->isPaused;
+  // if (IsKeyPressed(KEY_SPACE))
+  //   arg->isPaused = !arg->isPaused;
   if (IsKeyPressed(KEY_R) && player->isDead) {
     *display = GameScreen;
     InitNewGame(player, sections);
