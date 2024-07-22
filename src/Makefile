@@ -1,8 +1,8 @@
 
 PLATFORM	?= PLATFORM_WEB
 BUILD_MODE	?= DEBUG
-FILES		 = main.c line.c section.c
-TEST_FILES	 = test.c line.c section.c
+FILES		 = main.c line.c section.c game.c player.c
+TEST_FILES	 = test.c line.c section.c game.c player.c
 CC		 = gcc
 CFLAGS		:= -Wall -Wextra -g
 INCLUDE_PATHS	:= -Iinclude
