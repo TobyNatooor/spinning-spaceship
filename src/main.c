@@ -46,14 +46,9 @@ LoopArg *Setup(void) {
 
   LoopArg *loopArg = malloc(sizeof(LoopArg));
   Image background = LoadImage("resources/starry_night.png");
-  // ImageResize(&background, SCREEN_WIDTH, SCREEN_HEIGHT;
-  loopArg->background = LoadTexture("resources/starry_night.png");
-  if (IsTextureReady(loopArg->background))
-    printf("test\n");
-  else
-    printf("123\n");
+  loopArg->background = LoadTextureFromImage(background);
   UnloadImage(background);
-  
+
   loopArg->player = player;
   loopArg->sections = NULL;
   loopArg->isPaused = false;
@@ -175,11 +170,16 @@ void UpdateGame(Player *player, SectionNode **sections) {
   }
 }
 
-void DrawGameScreen(Player *player, SectionNode **sections, Display *display, Texture2D background) {
+void DrawGameScreen(Player *player, SectionNode **sections, Display *display,
+                    Texture2D background) {
   BeginDrawing();
 
   ClearBackground(DARKGRAY);
-  DrawTexture(background, 0, 0, WHITE);
+  // TODO: stop textures from moving after the player has died
+  float y1 = ((int)(100 * GetTime() + SCREEN_HEIGHT) % (background.height * 2)) - background.height;
+  float y2 = ((int)(100 * GetTime()) % (background.height * 2)) - background.height * 2 + SCREEN_HEIGHT;
+  DrawTexture(background, 0, y1, WHITE);
+  DrawTexture(background, 0, y2, WHITE);
   DrawSections(*sections);
   DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
                  (Rectangle){player->position.x, player->position.y, 100, 100},
