@@ -1,4 +1,5 @@
 #include "game.h"
+#include "include/raylib.h"
 
 void InitNewGame(Player *player, SectionNode **sections) {
   player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0 -
@@ -143,7 +144,7 @@ void DrawGame(Player *player, SectionNode **sections, Display *display,
 
   DrawTexturePro(player->texture, (Rectangle){0, 0, 100, 100},
                  (Rectangle){player->position.x, player->position.y, 100, 100},
-                 (Vector2){50, 50}, player->rotation * (180 / PI), WHITE);
+                 (Vector2){50, 50}, player->rotation * RAD2DEG, WHITE);
 
 #if defined(DEBUG)
   Vector2 *points = player->points;
