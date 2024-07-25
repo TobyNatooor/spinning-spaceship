@@ -1,6 +1,7 @@
 #include "section.h"
 #include <math.h>
-#include <time.h>
+#include <stdlib.h>
+
 
 typedef struct Player {
   Texture2D texture;
