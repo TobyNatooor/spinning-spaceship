@@ -112,7 +112,7 @@ void UpdateGame(Player *player, SectionNode **sections) {
     player->isDead = true;
 
   if (CountSections(*sections) <= 2) {
-    switch (rand() % 3) {
+    switch (GetRandomValue(0, 2)) {
     case 0:
       AddStraightSection(sections);
       break;
