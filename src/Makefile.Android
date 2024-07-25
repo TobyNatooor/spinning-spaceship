@@ -25,7 +25,7 @@ SHELL=cmd
 
 # Define required raylib variables
 PLATFORM               ?= PLATFORM_ANDROID
-RAYLIB_PATH            ?= C:\Users\tobia\dev\raylib
+RAYLIB_PATH            ?= C:\raylib
 
 # Define Android architecture (armeabi-v7a, arm64-v8a, x86, x86-64) and API version
 # Starting in 2019 using ARM64 is mandatory for published apps,
@@ -48,11 +48,11 @@ endif
 
 # Required path variables
 # NOTE: JAVA_HOME must be set to JDK (using OpenJDK 13)
-JAVA_HOME              ?= C:\jdk-19.0.1
+JAVA_HOME              = "C:\Program Files\Java\jdk-17"
 ANDROID_HOME           ?= C:\Users\tobia\AppData\Local\Android\Sdk
 ANDROID_NDK            ?= C:\android-ndk-r25b
 ANDROID_TOOLCHAIN      ?= $(ANDROID_NDK)/toolchains/llvm/prebuilt/windows-x86_64
-ANDROID_BUILD_TOOLS    ?= $(ANDROID_HOME)/build-tools/30.0.3
+ANDROID_BUILD_TOOLS    ?= $(ANDROID_HOME)/build-tools/29.0.3
 ANDROID_PLATFORM_TOOLS  = $(ANDROID_HOME)/platform-tools
 
 # Android project configuration variables
@@ -61,7 +61,7 @@ PROJECT_LIBRARY_NAME   ?= main
 PROJECT_BUILD_ID       ?= android
 PROJECT_BUILD_PATH     ?= $(PROJECT_BUILD_ID).$(PROJECT_NAME)
 PROJECT_RESOURCES_PATH ?= resources
-PROJECT_SOURCE_FILES   ?= main.c
+PROJECT_SOURCE_FILES   ?= main.c line.c section.c game.c player.c
 NATIVE_APP_GLUE_PATH    = $(ANDROID_NDK)/sources/android/native_app_glue
 
 # Some source files are placed in directories, when compiling to some 
@@ -247,7 +247,7 @@ generate_android_manifest:
 # Generate storekey for APK signing: $(PROJECT_NAME).keystore
 # NOTE: Configure here your Distinguished Names (-dname) if required!
 generate_apk_keystore: 
-	if not exist $(PROJECT_BUILD_PATH)/$(PROJECT_NAME).keystore $(JAVA_HOME)/bin/keytool -genkeypair -validity 10000 -dname "CN=$(APP_COMPANY_NAME),O=Android,C=ES" -keystore $(PROJECT_BUILD_PATH)/$(PROJECT_NAME).keystore -storepass $(APP_KEYSTORE_PASS) -keypass $(APP_KEYSTORE_PASS) -alias $(PROJECT_NAME)Key -keyalg RSA
+	if not exist $(PROJECT_BUILD_PATH)/$(PROJECT_NAME).keystore "$(JAVA_HOME)/bin/keytool" -genkeypair -validity 10000 -dname "CN=$(APP_COMPANY_NAME),O=Android,C=ES" -keystore $(PROJECT_BUILD_PATH)/$(PROJECT_NAME).keystore -storepass $(APP_KEYSTORE_PASS) -keypass $(APP_KEYSTORE_PASS) -alias $(PROJECT_NAME)Key -keyalg RSA
 
 # Config project package and resource using AndroidManifest.xml and res/values/strings.xml
 # NOTE: Generates resources file: src/com/$(APP_COMPANY_NAME)/$(APP_PRODUCT_NAME)/R.java
@@ -270,7 +270,7 @@ $(PROJECT_BUILD_PATH)/obj/%.o:%.c
     
 # Compile project .java code into .class (Java bytecode) 
 compile_project_class:
-	$(JAVA_HOME)/bin/javac -verbose -source 1.7 -target 1.7 -d $(PROJECT_BUILD_PATH)/obj -bootclasspath $(JAVA_HOME)/jre/lib/rt.jar -classpath $(ANDROID_HOME)/platforms/android-$(ANDROID_API_VERSION)/android.jar;$(PROJECT_BUILD_PATH)/obj -sourcepath $(PROJECT_BUILD_PATH)/src $(PROJECT_BUILD_PATH)/src/com/$(APP_COMPANY_NAME)/$(APP_PRODUCT_NAME)/R.java $(PROJECT_BUILD_PATH)/src/com/$(APP_COMPANY_NAME)/$(APP_PRODUCT_NAME)/NativeLoader.java
+	"$(JAVA_HOME)/bin/javac" -verbose -source 1.7 -target 1.7 -d $(PROJECT_BUILD_PATH)/obj -bootclasspath "$(JAVA_HOME)/jre/lib/rt.jar" -classpath $(ANDROID_HOME)/platforms/android-$(ANDROID_API_VERSION)/android.jar;$(PROJECT_BUILD_PATH)/obj -sourcepath $(PROJECT_BUILD_PATH)/src $(PROJECT_BUILD_PATH)/src/com/$(APP_COMPANY_NAME)/$(APP_PRODUCT_NAME)/R.java $(PROJECT_BUILD_PATH)/src/com/$(APP_COMPANY_NAME)/$(APP_PRODUCT_NAME)/NativeLoader.java
 
 # Compile .class files into Dalvik executable bytecode (.dex)
 # NOTE: Since Android 5.0, Dalvik interpreter (JIT) has been replaced by ART (AOT)
@@ -286,7 +286,7 @@ create_project_apk_package:
 
 # Create signed APK package using generated Key: bin/$(PROJECT_NAME).signed.apk 
 sign_project_apk_package:
-	$(JAVA_HOME)/bin/jarsigner -keystore $(PROJECT_BUILD_PATH)/$(PROJECT_NAME).keystore -storepass $(APP_KEYSTORE_PASS) -keypass $(APP_KEYSTORE_PASS) -signedjar $(PROJECT_BUILD_PATH)/bin/$(PROJECT_NAME).signed.apk $(PROJECT_BUILD_PATH)/bin/$(PROJECT_NAME).unsigned.apk $(PROJECT_NAME)Key
+	"$(JAVA_HOME)/bin/jarsigner" -keystore $(PROJECT_BUILD_PATH)/$(PROJECT_NAME).keystore -storepass $(APP_KEYSTORE_PASS) -keypass $(APP_KEYSTORE_PASS) -signedjar $(PROJECT_BUILD_PATH)/bin/$(PROJECT_NAME).signed.apk $(PROJECT_BUILD_PATH)/bin/$(PROJECT_NAME).unsigned.apk $(PROJECT_NAME)Key
 
 # Create zip-aligned APK package: $(PROJECT_NAME).apk 
 zipalign_project_apk_package:
