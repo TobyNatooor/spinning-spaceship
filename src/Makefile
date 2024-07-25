@@ -10,6 +10,9 @@ INCLUDE_PATHS	:= -Iinclude
 ifeq ($(PLATFORM), PLATFORM_WEB)
     CC = emcc
 endif
+ifeq ($(PLATFORM), PLATFORM_ANDROID)
+    CC = mingw32-make
+endif
 
 ifeq ($(RAYLIB_BUILD_MODE),RELEASE)
     ifeq ($(PLATFORM),PLATFORM_WEB)
@@ -34,6 +37,9 @@ endif
 ifeq ($(PLATFORM), PLATFORM_DESKTOP)
 	mkdir --parents ../out/desktop
 	$(CC) $(FILES) -o ../out/desktop/main $(CFLAGS) -Llib/desktop/ -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+endif
+ifeq ($(PLATFORM),PLATFORM_ANDROID)
+	$(CC) -f Makefile.Android
 endif
 
 test: $(TEST_FILES)
