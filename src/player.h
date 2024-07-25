@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-
 typedef struct Player {
   Texture2D texture;
   Vector2 *points;
