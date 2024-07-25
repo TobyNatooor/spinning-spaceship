@@ -1,5 +1,4 @@
 #include "game.h"
-#include "include/raylib.h"
 
 void InitNewGame(Player *player, SectionNode **sections) {
   player->position.x = SCREEN_WIDTH / 2.0 + player->texture.width / 2.0 -

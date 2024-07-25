@@ -1,7 +1,5 @@
 #include "game.h"
 #include "include/raylib.h"
-#include <math.h>
-#include <stdlib.h>
 
 typedef struct LoopArg {
   Texture2D background;

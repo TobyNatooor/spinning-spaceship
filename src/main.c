@@ -1,4 +1,5 @@
 #include "main.h"
+#include <stdlib.h>
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
